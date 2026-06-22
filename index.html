@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İthalat Pro — Çin'den Mal Tedariki & Sourcing Otomasyonu</title>
+  <meta name="description" content="Çin'den mal ithal etmek isteyenler için aday müşteri eleme, Google Meet/Zoom satış görüşmesi ve tedarik otomasyon sistemi." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>" />
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <span class="logo">İP</span>
+        <span>İthalat<span style="color:var(--green)">Pro</span></span>
+      </a>
+      <nav class="nav-links">
+        <a href="#nasil">Nasıl Çalışır</a>
+        <a href="#sistem">Sistem</a>
+        <a href="panel.html">Admin Panel</a>
+        <a class="btn btn--sm" href="#basvuru">Başvuru Yap</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO (Adım 1: Reklam & Landing) -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">Meta / Instagram Reklam → Landing</span>
+        <h1>Çin'den mal almak isteyenler için <span class="accent">tedarik otomasyonu</span></h1>
+        <p class="lead">
+          Doğru üreticiyi bulun, teklifleri tek raporda karşılaştırın, maliyeti net görün.
+          Başvurun, sizi <strong>Google Meet / Zoom</strong> görüşmesine alalım — gerisini sistem hallediyor.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn--lg" href="#basvuru">🚀 Başvuru Yap</a>
+          <a class="btn btn--lg btn--ghost" href="#nasil">Nasıl çalışır?</a>
+        </div>
+        <div class="trust">
+          <div class="t"><b>20.000$+</b><span>Aylık hacim hedefi</span></div>
+          <div class="t"><b>2-3 hafta</b><span>Kurulum süresi</span></div>
+          <div class="t"><b>3 teklif</b><span>Karşılaştırmalı rapor</span></div>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="ship">
+          <div class="ship-tag">
+            <span class="badge badge--green">CANLI SİSTEM</span>
+            <h3 style="margin-top:10px">Lead → Meet → RFQ → Rapor → Para</h3>
+          </div>
+        </div>
+        <div class="row" style="padding:14px 10px 8px; gap:10px">
+          <span class="badge badge--mute">📦 Sourcing</span>
+          <span class="badge badge--mute">🧾 RFQ</span>
+          <span class="badge badge--mute">💰 Maliyet</span>
+          <span class="badge badge--mute">📊 Rapor</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NASIL ÇALIŞIR (sistem adımları özeti) -->
+  <section class="section" id="nasil">
+    <div class="container">
+      <span class="eyebrow">İş Akışı</span>
+      <h2>5 adımda sonuç: Lead → Para</h2>
+      <p class="sub">Başvurudan ödemeye kadar süreç tek sistemde yönetilir. Faz 1 hemen çalışır, Faz 2 ile otomasyon artar.</p>
+      <div class="steps" id="flow-steps"><!-- JS doldurur --></div>
+    </div>
+  </section>
+
+  <!-- BAŞVURU (Adım 2: Lead Form & Ön Eleme) + (Adım 3: Randevu) -->
+  <section class="section" id="basvuru">
+    <div class="container">
+      <span class="eyebrow">Adım 2 — Başvuru & Ön Eleme</span>
+      <h2>Başvuru Formu</h2>
+      <p class="sub">Formu doldurun; sistemimiz başvurunuzu otomatik değerlendirip uygunsa sizi görüşmeye yönlendirir.</p>
+
+      <div class="apply-grid">
+        <!-- FORM -->
+        <div class="card" id="form-card">
+          <form id="lead-form" novalidate>
+            <div class="form-cols">
+              <label class="field"><span>Ad Soyad *</span><input name="ad" required placeholder="Adınız Soyadınız" /></label>
+              <label class="field"><span>Telefon *</span><input name="telefon" required placeholder="+90 5xx xxx xx xx" /></label>
+            </div>
+            <label class="field"><span>E-posta *</span><input name="email" type="email" required placeholder="ornek@firma.com" /></label>
+            <div class="form-cols">
+              <label class="field"><span>Aylık Bütçeniz *</span>
+                <select name="butce" required>
+                  <option value="">Seçiniz</option>
+                  <option value="<5K">5.000$ altı</option>
+                  <option value="5K-20K">5.000$ - 20.000$</option>
+                  <option value="20K+">20.000$+</option>
+                  <option value="50K+">50.000$+</option>
+                </select>
+              </label>
+              <label class="field"><span>Sektör / Ürün Kategorisi *</span>
+                <select name="sektor" required>
+                  <option value="">Seçiniz</option>
+                  <option>Ev & Yaşam</option><option>Elektronik</option><option>Kozmetik</option>
+                  <option>Tekstil</option><option>Oyuncak</option><option>Diğer</option>
+                </select>
+              </label>
+            </div>
+            <label class="field"><span>İthal etmek istediğiniz ürün *</span><input name="urun" required placeholder="Örn: Plastik saklama kutusu" /></label>
+            <div class="form-cols">
+              <label class="field"><span>Daha önce ithalat yaptınız mı? *</span>
+                <select name="ithalatGecmisi" required>
+                  <option value="">Seçiniz</option><option>Evet</option><option>Hayır</option>
+                </select>
+              </label>
+              <label class="field"><span>Aciliyet *</span>
+                <select name="aciliyet" required>
+                  <option value="">Seçiniz</option><option>Yüksek</option><option>Orta</option><option>Düşük</option>
+                </select>
+              </label>
+            </div>
+            <button class="btn btn--block btn--lg" type="submit">Gönder →</button>
+            <p class="mute2 center" style="margin-top:12px; font-size:.8rem">🔒 Bilgileriniz yalnızca bu tarayıcıda saklanır (demo).</p>
+          </form>
+        </div>
+
+        <!-- SONUÇ / ÖN ELEME -->
+        <div id="side-panel">
+          <div class="card center" id="placeholder-panel">
+            <div class="big-icon">🤖</div>
+            <h3>Otomatik Ön Eleme</h3>
+            <p class="muted">Formu gönderdiğinizde sistemimiz bütçe, ithalat geçmişi ve aciliyete göre başvurunuzu anında değerlendirir.</p>
+            <div class="pill-list center" style="justify-content:center; margin-top:14px">
+              <span class="badge badge--green">Kaliteli Lead</span>
+              <span class="badge badge--mute">Uygun Değil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVANTAJLAR -->
+  <section class="section">
+    <div class="container">
+      <div class="benefits">
+        <div class="benefit card"><div class="ico">⚡</div><h4>Hızlı Kurulum</h4><p>2-3 haftada yayında çalışan sistem.</p></div>
+        <div class="benefit card"><div class="ico">💸</div><h4>Düşük Maliyet</h4><p>Manuel + otomasyon dengesi.</p></div>
+        <div class="benefit card"><div class="ico">💰</div><h4>Para Getiren Sistem</h4><p>Hemen satışa hazır akış.</p></div>
+        <div class="benefit card"><div class="ico">📈</div><h4>Ölçeklenebilir</h4><p>Faz 2 ile otomasyon artar.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SİSTEM (14 adım) -->
+  <section class="section" id="sistem">
+    <div class="container">
+      <span class="eyebrow">Tam Sistem</span>
+      <h2>14 adımlık tedarik otomasyon sistemi</h2>
+      <p class="sub">Faz 1 para getiren çekirdek, Faz 2 ölçeklendirme. Tümünü admin panelde canlı deneyebilirsiniz.</p>
+      <div class="flex-between" style="margin-bottom:18px">
+        <div class="pill-list">
+          <span class="badge badge--green">Faz 1 — MVP (1-8)</span>
+          <span class="badge badge--orange">Faz 2 — Otomasyon (9-14)</span>
+        </div>
+        <a class="btn" href="panel.html">Admin Paneli Aç →</a>
+      </div>
+      <div class="steps" id="system-steps"><!-- JS doldurur --></div>
+
+      <!-- Faz 2 avantaj bandı -->
+      <div class="phase-result phase-result--green" style="margin-top:28px">
+        <span class="badge badge--green">🎯 Faz 1 Sonucu</span>
+        <strong>Çalışan sistem · satışa hazır · para getiren çekirdek.</strong>
+      </div>
+      <div class="benefits" style="margin-top:18px">
+        <div class="benefit card"><div class="ico">🤖</div><h4>Daha Fazla Otomasyon</h4><p>%70+ otomatik süreç.</p></div>
+        <div class="benefit card"><div class="ico">⏱️</div><h4>Zaman Tasarrufu</h4><p>Manuel iş yükü azalır.</p></div>
+        <div class="benefit card"><div class="ico">⚡</div><h4>Daha Hızlı Sonuç</h4><p>Teklif toplama süresi kısalır.</p></div>
+        <div class="benefit card"><div class="ico">📦</div><h4>Daha Yüksek Kapasite</h4><p>Daha fazla müşteri yönetilebilir.</p></div>
+      </div>
+      <div class="phase-result phase-result--orange" style="margin-top:18px">
+        <span class="badge badge--orange">🚀 Faz 2 Sonucu</span>
+        <strong>Hızlı, otomatik, ölçeklenebilir profesyonel sistem.</strong>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container flex-between">
+      <div>
+        <div class="brand"><span class="logo">İP</span> İthalat<span style="color:var(--green)">Pro</span></div>
+        <p class="mute2" style="margin-top:8px; max-width:320px">Çin'den mal tedariki için aday eleme, satış görüşmesi ve RFQ otomasyon sistemi. Demo amaçlı statik site.</p>
+      </div>
+      <div>
+        <p class="muted"><strong>Hızlı Bağlantılar</strong></p>
+        <p style="margin-top:8px"><a href="#basvuru">Başvuru</a> · <a href="panel.html">Admin Panel</a></p>
+        <p class="mute2" style="margin-top:14px">© 2026 İthalatPro — Tüm hakları saklıdır.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-wrap"></div>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/public.js"></script>
+</body>
+</html>

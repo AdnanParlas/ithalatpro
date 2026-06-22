@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — İthalatPro Tedarik Otomasyonu</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="index.html"><span class="logo">İP</span><span class="brand-sub">İthalat<span style="color:var(--green)">Pro</span></span></a>
+
+      <div class="side-group">
+        <div class="label">Faz 1 — MVP</div>
+        <div class="side-link is-active" data-view="dashboard"><span class="si">📊</span> Dashboard <span class="tag badge badge--mute">4</span></div>
+        <div class="side-link" data-view="leads"><span class="si">👥</span> Lead Listesi</div>
+        <div class="side-link" data-view="customer"><span class="si">🪪</span> Müşteri & İş <span class="tag badge badge--mute">5</span></div>
+        <div class="side-link" data-view="rfq"><span class="si">✉️</span> RFQ Gönderimi <span class="tag badge badge--mute">6</span></div>
+        <div class="side-link" data-view="cost"><span class="si">🧮</span> Maliyet <span class="tag badge badge--mute">7</span></div>
+        <div class="side-link" data-view="report"><span class="si">📑</span> Rapor <span class="tag badge badge--mute">8</span></div>
+      </div>
+
+      <div class="side-group">
+        <div class="label">Faz 2 — Otomasyon</div>
+        <div class="side-link is-faz2" data-view="ai-analiz"><span class="si">🧠</span> AI Ürün Analizi <span class="tag badge badge--mute">9</span></div>
+        <div class="side-link is-faz2" data-view="ai-tedarik"><span class="si">🔎</span> AI Tedarikçi <span class="tag badge badge--mute">10</span></div>
+        <div class="side-link is-faz2" data-view="mail-oku"><span class="si">📥</span> Mail Okuma <span class="tag badge badge--mute">11</span></div>
+        <div class="side-link is-faz2" data-view="followup"><span class="si">🔁</span> Follow-up <span class="tag badge badge--mute">12</span></div>
+        <div class="side-link is-faz2" data-view="surec"><span class="si">📈</span> Süreç Takip <span class="tag badge badge--mute">13</span></div>
+        <div class="side-link is-faz2" data-view="whatsapp"><span class="si">💬</span> WhatsApp <span class="tag badge badge--mute">14</span></div>
+      </div>
+
+      <div class="side-group">
+        <div class="label">Sistem</div>
+        <div class="side-link" id="reset-data"><span class="si">♻️</span> Demo verisini sıfırla</div>
+        <a class="side-link" href="index.html"><span class="si">🌐</span> Siteye dön</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div style="display:flex; align-items:center; gap:12px">
+          <button class="btn btn--ghost btn--sm menu-toggle" id="menu-toggle" aria-label="Menü">☰</button>
+          <div>
+            <div class="crumb" id="crumb">Faz 1 · Dashboard</div>
+            <h1 id="view-title">Dashboard</h1>
+          </div>
+        </div>
+        <div class="row">
+          <span class="badge badge--green" id="online-badge">● Sistem aktif</span>
+        </div>
+      </div>
+      <div id="view-root"><!-- JS doldurur --></div>
+    </main>
+  </div>
+
+  <div id="toast-wrap"></div>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/panel.js"></script>
+</body>
+</html>
