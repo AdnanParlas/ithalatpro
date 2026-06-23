@@ -118,6 +118,8 @@
   }
 
   function seedIfEmpty() {
+    // Gerçek (Supabase) modda demo verisi EKLENMEZ — yalnızca gerçek veriler.
+    if (sb) return Promise.resolve();
     if (cache.leads.length) return Promise.resolve();
     var now = Date.now();
     var demoLeads = [
@@ -202,8 +204,31 @@
 
   function fakeAsync(ms) { return new Promise(function (res) { setTimeout(res, ms || 900); }); }
 
+  /* ============================================================
+     Auth (Supabase). Local modda kullanıcı yoktur (yapılandırılmamış).
+     ============================================================ */
+  function currentUser() {
+    if (!sb) return Promise.resolve(null);
+    return sb.auth.getUser().then(function (r) { return (r && r.data) ? r.data.user : null; })
+      .catch(function () { return null; });
+  }
+  function signUp(email, pw) {
+    if (!sb) return Promise.reject(new Error("Supabase yapılandırılmamış (config.js)."));
+    return sb.auth.signUp({ email: email, password: pw }).then(function (r) { if (r.error) throw r.error; return r.data; });
+  }
+  function signIn(email, pw) {
+    if (!sb) return Promise.reject(new Error("Supabase yapılandırılmamış (config.js)."));
+    return sb.auth.signInWithPassword({ email: email, password: pw }).then(function (r) { if (r.error) throw r.error; return r.data; });
+  }
+  function signOut() {
+    if (!sb) return Promise.resolve();
+    return sb.auth.signOut();
+  }
+
   global.Store = {
     MODE: MODE, MANUFACTURERS: MANUFACTURERS,
+    authConfigured: !!sb,
+    currentUser: currentUser, signUp: signUp, signIn: signIn, signOut: signOut,
     load: load,
     getLeads: getLeads, getLead: getLead, saveLead: saveLead, updateLead: updateLead,
     getJobs: getJobs, getJob: getJob, getJobByLead: getJobByLead, saveJob: saveJob,

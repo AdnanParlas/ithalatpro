@@ -626,12 +626,92 @@
     "mail-oku": viewMailOku, followup: viewFollowup, surec: viewSurec, whatsapp: viewWhatsapp
   };
 
+  /* =========================================================
+     AUTH (giriş / kayıt) ekranı
+     ========================================================= */
+  var authMode = "login";
+  function showScreen(id, show) { var e = el(id); if (e) e.classList.toggle("hidden", !show); }
+  function authMsg(text, ok) {
+    var m = el("auth-msg"); if (!m) return;
+    if (!text) { m.classList.add("hidden"); return; }
+    m.textContent = text; m.className = "auth-msg " + (ok ? "is-ok" : "is-error");
+  }
+  function wireAuthToggle() {
+    var t = el("auth-toggle");
+    if (t) t.addEventListener("click", function (e) {
+      e.preventDefault(); authMode = (authMode === "login") ? "signup" : "login"; renderAuthMode();
+    });
+  }
+  function renderAuthMode() {
+    var login = authMode === "login";
+    el("auth-title").textContent = login ? "Giriş Yap" : "Kayıt Ol";
+    el("auth-sub").textContent = login ? "Hesabınla giriş yap, her bilgisayardan eriş." : "Yeni hesap oluştur, hemen başla.";
+    el("auth-submit").textContent = login ? "Giriş Yap" : "Kayıt Ol";
+    el("auth-switch").innerHTML = login
+      ? 'Hesabın yok mu? <a href="#" id="auth-toggle" style="color:var(--green); font-weight:600">Kayıt ol</a>'
+      : 'Zaten hesabın var mı? <a href="#" id="auth-toggle" style="color:var(--green); font-weight:600">Giriş yap</a>';
+    el("auth-pass").setAttribute("autocomplete", login ? "current-password" : "new-password");
+    authMsg("");
+    wireAuthToggle();
+  }
+  function showAuth() { showScreen("boot-loader", false); showScreen("app-screen", false); showScreen("auth-screen", true); renderAuthMode(); }
+
+  function translateAuthError(msg) {
+    msg = msg || "Bir hata oluştu.";
+    if (/invalid login credentials/i.test(msg)) return "E-posta veya şifre hatalı.";
+    if (/already registered|already been registered|user already/i.test(msg)) return "Bu e-posta zaten kayıtlı. Giriş yapmayı dene.";
+    if (/email.*confirm|not confirmed/i.test(msg)) return "E-posta henüz doğrulanmamış. Gelen kutunu kontrol et.";
+    if (/password should be at least/i.test(msg)) return "Şifre en az 6 karakter olmalı.";
+    return msg;
+  }
+  function submitAuth() {
+    var email = (el("auth-email").value || "").trim();
+    var pw = el("auth-pass").value || "";
+    if (!email || !pw) { authMsg("E-posta ve şifre gerekli."); return; }
+    if (pw.length < 6) { authMsg("Şifre en az 6 karakter olmalı."); return; }
+    var btn = el("auth-submit"); btn.disabled = true; var old = btn.textContent; btn.textContent = "Lütfen bekleyin…";
+    var op = (authMode === "login") ? S.signIn(email, pw) : S.signUp(email, pw);
+    op.then(function (data) {
+      if (authMode === "signup" && data && !data.session) {
+        authMode = "login"; renderAuthMode();
+        authMsg("Kayıt alındı! E-postanı doğrulayıp giriş yapabilirsin.", true);
+        btn.disabled = false; btn.textContent = "Giriş Yap";
+        return;
+      }
+      startApp();
+    }).catch(function (err) {
+      authMsg(translateAuthError(err && err.message));
+      btn.disabled = false; btn.textContent = old;
+    });
+  }
+
+  /* =========================================================
+     Uygulamayı başlat (giriş sonrası VEYA yerel mod)
+     ========================================================= */
+  function startApp() {
+    showScreen("auth-screen", false); showScreen("boot-loader", false); showScreen("app-screen", true);
+
+    S.currentUser().then(function (u) { var e = el("user-email"); if (e) e.textContent = (u && u.email) ? ("👤 " + u.email) : ""; });
+
+    var ob = el("online-badge");
+    if (ob) {
+      if (S.MODE === "supabase") { ob.textContent = "● Supabase bağlı"; ob.className = "badge badge--green"; }
+      else { ob.textContent = "● Yerel mod"; ob.className = "badge badge--mute"; }
+    }
+
+    el("view-root").innerHTML = '<div class="empty"><div class="ico">⏳</div><p class="mute2">Veriler yükleniyor…</p></div>';
+    S.load()
+      .then(function () { return S.seedIfEmpty(); })
+      .then(function () { go("dashboard"); })
+      .catch(function (e) { console.warn("Yükleme hatası:", e); go("dashboard"); });
+  }
+
   /* ---------- init ---------- */
   function isMobile() { return window.matchMedia("(max-width: 920px)").matches; }
 
   document.addEventListener("DOMContentLoaded", function () {
     var sidebar = el("sidebar"), menuBtn = el("menu-toggle");
-    if (isMobile()) sidebar.classList.add("is-collapsed");
+    if (isMobile() && sidebar) sidebar.classList.add("is-collapsed");
     if (menuBtn) menuBtn.addEventListener("click", function () { sidebar.classList.toggle("is-collapsed"); });
 
     document.querySelectorAll(".side-link[data-view]").forEach(function (l) {
@@ -640,32 +720,34 @@
         if (isMobile()) sidebar.classList.add("is-collapsed");
       });
     });
-    el("reset-data").addEventListener("click", function () {
-      if (confirm("Tüm demo verisi sıfırlansın mı? Bu işlem geri alınamaz.")) {
+
+    var reset = el("reset-data");
+    if (reset) reset.addEventListener("click", function () {
+      if (confirm("TÜM veriler (lead, iş, mesaj) silinsin mi? Bu işlem geri alınamaz.")) {
         state.selectedLead = null; state.selectedJob = null;
         S.resetAll().then(function () { return S.seedIfEmpty(); }).then(function () {
-          S.toast("Sıfırlandı", "Demo verisi yeniden yüklendi.");
+          S.toast("Sıfırlandı", "Veriler temizlendi.");
           go("dashboard");
         });
       }
     });
 
-    // Mod göstergesi
-    var ob = el("online-badge");
-    if (ob) {
-      if (S.MODE === "supabase") { ob.textContent = "● Supabase bağlı"; ob.className = "badge badge--green"; }
-      else { ob.textContent = "● Yerel demo (localStorage)"; ob.className = "badge badge--mute"; }
-    }
+    var logout = el("logout-btn");
+    if (logout) logout.addEventListener("click", function () {
+      S.signOut().then(function () { S.toast("Çıkış yapıldı", ""); showAuth(); });
+    });
 
-    // Veriyi yükle → boşsa demo verisini ekle → paneli aç
-    el("view-root").innerHTML = '<div class="empty"><div class="ico">⏳</div><p class="mute2">Veriler yükleniyor…</p></div>';
-    S.load()
-      .then(function () { return S.seedIfEmpty(); })
-      .then(function () { go("dashboard"); })
-      .catch(function (e) {
-        console.warn("Yükleme hatası:", e);
-        S.toast("Bağlantı hatası", "Veri yüklenemedi, demo moduna düşülüyor.", "red");
-        go("dashboard");
-      });
+    // Auth formu
+    var as = el("auth-submit"); if (as) as.addEventListener("click", submitAuth);
+    var ap = el("auth-pass"); if (ap) ap.addEventListener("keydown", function (e) { if (e.key === "Enter") submitAuth(); });
+    var ae = el("auth-email"); if (ae) ae.addEventListener("keydown", function (e) { if (e.key === "Enter") submitAuth(); });
+    wireAuthToggle();
+
+    // Yönlendirme: Supabase modunda oturum yoksa giriş ekranı; aksi halde panel.
+    if (S.MODE === "supabase") {
+      S.currentUser().then(function (user) { if (user) startApp(); else showAuth(); }).catch(function () { showAuth(); });
+    } else {
+      startApp(); // Supabase henüz yapılandırılmadı → yerel mod, doğrudan panel.
+    }
   });
 })();

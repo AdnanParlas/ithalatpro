@@ -54,27 +54,30 @@ python -m http.server 8000
 
 Harici CDN/bağımlılık yoktur; ilk yüklemede çalışır.
 
-## Supabase'e Bağlama (veriyi buluta taşı)
+## Supabase'e Bağlama (gerçek sistem + kayıt/giriş)
 
-Site **çift modlu** çalışır: `assets/js/config.js` boş bırakılırsa tarayıcı `localStorage`'ı (demo) kullanır; gerçek bilgiler girilince **Supabase** (bulut veritabanı) kullanılır ve veriler tüm cihazlar/ziyaretçiler arasında paylaşılır.
+`assets/js/config.js` doldurulunca site **Supabase** kullanır: veriler bulutta saklanır, **her bilgisayardan** erişilir ve admin paneli **kayıt/giriş (Supabase Auth)** arkasındadır. (Doldurulmazsa yerel mod / fallback çalışır.)
+
+Model: **ekip ortak panel** → giriş yapan herkes tüm veriyi görür. Başvuru formu herkese açıktır (anonim lead ekler).
 
 ### Adımlar
-1. **Proje aç:** [supabase.com](https://supabase.com) → ücretsiz hesap → **New project** (bölge: Frankfurt önerilir).
-2. **Tabloları kur:** Supabase Panel → **SQL Editor** → **New query** → [`supabase/schema.sql`](supabase/schema.sql) dosyasının tamamını yapıştır → **Run**. Bu, `leads / jobs / followups / messages` tablolarını ve güvenlik (RLS) kurallarını oluşturur.
-3. **Anahtarları al:** Panel → **Project Settings → API**:
-   - **Project URL**
-   - **anon public** anahtarı (bu anahtar tarayıcıda görünür — bu normaldir, güvenlik RLS ile sağlanır).
-4. **`config.js`'i doldur:**
+1. **Proje aç:** [supabase.com](https://supabase.com) → **New project** (bölge: Frankfurt; bir veritabanı şifresi belirle).
+2. **Tabloları + güvenliği kur:** Supabase → **SQL Editor → New query** → [`supabase/schema.sql`](supabase/schema.sql) dosyasının tamamını yapıştır → **Run**.
+3. **Kayıt/giriş ayarı:** Supabase → **Authentication → Providers → Email** açık olsun. Kayıt sonrası onay maili beklemeden hemen giriş için **"Confirm email" KAPALI** yap (test için pratik).
+4. **Anahtarları al:** Supabase → **Project Settings → API**:
+   - **Project URL** (örn. `https://abcd.supabase.co`)
+   - **Project API keys → `anon` `public`** (uzun `eyJ...` anahtarı; tarayıcıda görünmesi normaldir, güvenlik RLS ile sağlanır).
+5. **`config.js`'i doldur:**
    ```js
    window.SUPA = {
-     url: "https://xxxx.supabase.co",   // Project URL
+     url: "https://abcd.supabase.co",   // Project URL
      key: "eyJhbGciOi..."               // anon public anahtarı
    };
    ```
-5. **Yayınla:** `git add -A && git commit -m "supabase baglandi" && git push`. Panelde sağ üstte **"● Supabase bağlı"** yazarsa bağlantı tamamdır.
+6. **Yayınla:** `git add -A && git commit -m "supabase baglandi" && git push`. Panelde giriş ekranı çıkar; sağ üstte **"● Supabase bağlı"** görünür.
 
-### ⚠️ Güvenlik notu (önemli)
-Şu anki `schema.sql` **demo modundadır**: admin paneli login'siz olduğu için anon anahtarı bilen herkes verileri okuyabilir/yazabilir. **Gerçek müşteri verisiyle** yayına geçerken `schema.sql` içindeki **"ÜRETİM (PRODUCTION)"** bölümünü uygula ve panele Supabase Auth ile giriş ekle (bu özellik istenirse eklenebilir).
+### ⚠️ Güvenlik notu
+"Açık kayıt + ekip ortak panel" seçili olduğu için **kayıt olan herkes tüm verileri görür**. Daha sıkı istersen Supabase → Authentication → "Allow new signups" kapat (kullanıcıları sen eklersin) ya da kişi-bazlı veri izolasyonu eklenebilir.
 
 ## Diğer Backend Seçenekleri (opsiyonel)
 

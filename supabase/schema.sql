@@ -1,80 +1,70 @@
 -- ============================================================
--- İthalatPro — Supabase şeması
--- Supabase Panel → SQL Editor → New query → bu dosyanın tamamını
--- yapıştır → "Run". Tablolar + güvenlik kuralları oluşur.
+-- İthalatPro — Supabase şeması (GERÇEK / ÜRETİM)
+-- Model: "Ekip ortak panel" → giriş yapan herkes tüm veriyi görür.
+--        Başvuru formu herkese açık (anonim lead ekleyebilir).
+--
+-- Kurulum: Supabase Panel → SQL Editor → New query → bu dosyanın
+-- TAMAMINI yapıştır → Run.
 -- ============================================================
 
--- Her tablo: id (uygulama üretir, metin) + data (jsonb) + created_at.
--- Bu yapı uygulamadaki nesnelerle birebir uyumludur (kolon eşlemesi yok).
-
+-- ---- Tablolar (id uygulama üretir; data = jsonb nesne) ----
 create table if not exists public.leads (
-  id          text primary key,
-  data        jsonb not null,
-  created_at  timestamptz not null default now()
+  id text primary key, data jsonb not null, created_at timestamptz not null default now()
 );
-
 create table if not exists public.jobs (
-  id          text primary key,
-  data        jsonb not null,
-  created_at  timestamptz not null default now()
+  id text primary key, data jsonb not null, created_at timestamptz not null default now()
 );
-
 create table if not exists public.followups (
-  id          text primary key,
-  data        jsonb not null,
-  created_at  timestamptz not null default now()
+  id text primary key, data jsonb not null, created_at timestamptz not null default now()
 );
-
 create table if not exists public.messages (
-  id          text primary key,
-  data        jsonb not null,
-  created_at  timestamptz not null default now()
+  id text primary key, data jsonb not null, created_at timestamptz not null default now()
 );
 
--- ============================================================
--- Row Level Security (RLS)
--- ============================================================
+-- ---- RLS aç ----
 alter table public.leads     enable row level security;
 alter table public.jobs      enable row level security;
 alter table public.followups enable row level security;
 alter table public.messages  enable row level security;
 
--- ⚠️ DEMO MODU — login YOK.
--- Bu kurallar anonim (anon) ziyaretçiye tüm işlemleri açar.
--- Yani anon anahtarı bilen herkes verileri okuyabilir/yazabilir.
--- Demo/test için uygundur. CANLI/gerçek müşteri verisi için aşağıdaki
--- "ÜRETİM" bölümüne geç.
-
-create policy "demo_all_leads"     on public.leads     for all to anon using (true) with check (true);
-create policy "demo_all_jobs"      on public.jobs      for all to anon using (true) with check (true);
-create policy "demo_all_followups" on public.followups for all to anon using (true) with check (true);
-create policy "demo_all_messages"  on public.messages  for all to anon using (true) with check (true);
-
--- anon rolüne tablo yetkileri (Supabase çoğu projede otomatik verir;
--- garanti olsun diye açıkça veriyoruz):
-grant usage on schema public to anon;
-grant select, insert, update, delete on public.leads, public.jobs, public.followups, public.messages to anon;
+-- Tekrar çalıştırılabilir olsun diye eski politikaları temizle
+drop policy if exists "leads_insert_anon" on public.leads;
+drop policy if exists "leads_all_auth"    on public.leads;
+drop policy if exists "jobs_all_auth"      on public.jobs;
+drop policy if exists "followups_all_auth" on public.followups;
+drop policy if exists "messages_all_auth"  on public.messages;
+-- (varsa eski demo politikaları)
+drop policy if exists "demo_all_leads"     on public.leads;
+drop policy if exists "demo_all_jobs"      on public.jobs;
+drop policy if exists "demo_all_followups" on public.followups;
+drop policy if exists "demo_all_messages"  on public.messages;
 
 -- ============================================================
--- ÜRETİM (PRODUCTION) — admin login ekleyince burayı kullan
--- ------------------------------------------------------------
--- Aşağıdaki blok yorum (--) halinde. Gerçek müşteri verisiyle
--- yayına geçerken: yukarıdaki "demo_all_*" politikalarını DROP et,
--- aşağıdakileri aç. O zaman:
---   • Başvuru formu (leads INSERT) herkese açık kalır,
---   • Okuma/güncelleme yalnızca giriş yapmış (authenticated) admin'e.
+-- GÜVENLİK POLİTİKALARI
 -- ============================================================
--- drop policy "demo_all_leads"     on public.leads;
--- drop policy "demo_all_jobs"      on public.jobs;
--- drop policy "demo_all_followups" on public.followups;
--- drop policy "demo_all_messages"  on public.messages;
---
--- -- Herkes başvuru gönderebilir (yalnızca INSERT):
--- create policy "public_insert_leads" on public.leads for insert to anon with check (true);
--- -- Geri kalan her şey yalnızca giriş yapmış admin'e:
--- create policy "auth_all_leads"     on public.leads     for all to authenticated using (true) with check (true);
--- create policy "auth_all_jobs"      on public.jobs      for all to authenticated using (true) with check (true);
--- create policy "auth_all_followups" on public.followups for all to authenticated using (true) with check (true);
--- create policy "auth_all_messages"  on public.messages  for all to authenticated using (true) with check (true);
--- revoke select, update, delete on public.leads from anon;
--- revoke all on public.jobs, public.followups, public.messages from anon;
+-- 1) Başvuru formu: anonim ziyaretçi yalnızca LEAD EKLEYEBİLİR (insert),
+--    okuyamaz/güncelleyemez.
+create policy "leads_insert_anon" on public.leads
+  for insert to anon with check (true);
+
+-- 2) Panel: giriş yapmış (authenticated) kullanıcı her şeyi yapabilir.
+--    "Ekip ortak panel" → herkes tüm satırları görür.
+create policy "leads_all_auth"     on public.leads     for all to authenticated using (true) with check (true);
+create policy "jobs_all_auth"      on public.jobs      for all to authenticated using (true) with check (true);
+create policy "followups_all_auth" on public.followups for all to authenticated using (true) with check (true);
+create policy "messages_all_auth"  on public.messages  for all to authenticated using (true) with check (true);
+
+-- ---- Rol yetkileri ----
+grant usage on schema public to anon, authenticated;
+grant insert on public.leads to anon;
+grant select, insert, update, delete on
+  public.leads, public.jobs, public.followups, public.messages to authenticated;
+
+-- ============================================================
+-- NOT (güvenlik): Şu an "açık kayıt" + "ekip ortak panel" seçili.
+-- Yani KAYIT OLAN HERKES tüm verileri görür. Daha sıkı istersen:
+--   • Supabase → Authentication → Providers → Email → "Allow new users
+--     to sign up" KAPAT (sadece sen Dashboard'dan kullanıcı eklersin).
+--   • Ya da kişi-bazlı veri için satıra owner uuid eklenip politikalar
+--     auth.uid() ile kısıtlanır (iste, ekleyeyim).
+-- ============================================================
