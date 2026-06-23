@@ -5,7 +5,6 @@
 (function () {
   "use strict";
   var S = window.Store;
-  S.seedIfEmpty();
 
   /* ---------- Akış / sistem adımları (statik içerik) ---------- */
   var FLOW = [
@@ -239,5 +238,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     renderSteps();
     document.getElementById("lead-form").addEventListener("submit", handleSubmit);
+    // Veri katmanını yükle (Supabase veya localStorage). Form yazımı için cache hazır olsun.
+    S.load().catch(function (e) { console.warn("Store.load hatası:", e); });
   });
 })();

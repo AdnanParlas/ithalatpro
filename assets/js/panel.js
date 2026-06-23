@@ -6,7 +6,6 @@
 (function () {
   "use strict";
   var S = window.Store;
-  S.seedIfEmpty();
 
   var DURUM = {
     "yeni": { t: "Yeni", c: "mute" },
@@ -643,11 +642,30 @@
     });
     el("reset-data").addEventListener("click", function () {
       if (confirm("Tüm demo verisi sıfırlansın mı? Bu işlem geri alınamaz.")) {
-        S.resetAll(); S.seedIfEmpty(); state.selectedLead = null; state.selectedJob = null;
-        S.toast("Sıfırlandı", "Demo verisi yeniden yüklendi.");
-        go("dashboard");
+        state.selectedLead = null; state.selectedJob = null;
+        S.resetAll().then(function () { return S.seedIfEmpty(); }).then(function () {
+          S.toast("Sıfırlandı", "Demo verisi yeniden yüklendi.");
+          go("dashboard");
+        });
       }
     });
-    go("dashboard");
+
+    // Mod göstergesi
+    var ob = el("online-badge");
+    if (ob) {
+      if (S.MODE === "supabase") { ob.textContent = "● Supabase bağlı"; ob.className = "badge badge--green"; }
+      else { ob.textContent = "● Yerel demo (localStorage)"; ob.className = "badge badge--mute"; }
+    }
+
+    // Veriyi yükle → boşsa demo verisini ekle → paneli aç
+    el("view-root").innerHTML = '<div class="empty"><div class="ico">⏳</div><p class="mute2">Veriler yükleniyor…</p></div>';
+    S.load()
+      .then(function () { return S.seedIfEmpty(); })
+      .then(function () { go("dashboard"); })
+      .catch(function (e) {
+        console.warn("Yükleme hatası:", e);
+        S.toast("Bağlantı hatası", "Veri yüklenemedi, demo moduna düşülüyor.", "red");
+        go("dashboard");
+      });
   });
 })();

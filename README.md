@@ -54,11 +54,32 @@ python -m http.server 8000
 
 Harici CDN/bağımlılık yoktur; ilk yüklemede çalışır.
 
-## Gerçek Backend İstenirse (opsiyonel, şu an kapsam dışı)
+## Supabase'e Bağlama (veriyi buluta taşı)
 
-- **Form gönderimi:** [Formspree](https://formspree.io) veya [EmailJS](https://www.emailjs.com) (sunucusuz, ücretsiz katman).
-- **Veri saklama:** Google Sheets API / Airtable / Supabase.
+Site **çift modlu** çalışır: `assets/js/config.js` boş bırakılırsa tarayıcı `localStorage`'ı (demo) kullanır; gerçek bilgiler girilince **Supabase** (bulut veritabanı) kullanılır ve veriler tüm cihazlar/ziyaretçiler arasında paylaşılır.
+
+### Adımlar
+1. **Proje aç:** [supabase.com](https://supabase.com) → ücretsiz hesap → **New project** (bölge: Frankfurt önerilir).
+2. **Tabloları kur:** Supabase Panel → **SQL Editor** → **New query** → [`supabase/schema.sql`](supabase/schema.sql) dosyasının tamamını yapıştır → **Run**. Bu, `leads / jobs / followups / messages` tablolarını ve güvenlik (RLS) kurallarını oluşturur.
+3. **Anahtarları al:** Panel → **Project Settings → API**:
+   - **Project URL**
+   - **anon public** anahtarı (bu anahtar tarayıcıda görünür — bu normaldir, güvenlik RLS ile sağlanır).
+4. **`config.js`'i doldur:**
+   ```js
+   window.SUPA = {
+     url: "https://xxxx.supabase.co",   // Project URL
+     key: "eyJhbGciOi..."               // anon public anahtarı
+   };
+   ```
+5. **Yayınla:** `git add -A && git commit -m "supabase baglandi" && git push`. Panelde sağ üstte **"● Supabase bağlı"** yazarsa bağlantı tamamdır.
+
+### ⚠️ Güvenlik notu (önemli)
+Şu anki `schema.sql` **demo modundadır**: admin paneli login'siz olduğu için anon anahtarı bilen herkes verileri okuyabilir/yazabilir. **Gerçek müşteri verisiyle** yayına geçerken `schema.sql` içindeki **"ÜRETİM (PRODUCTION)"** bölümünü uygula ve panele Supabase Auth ile giriş ekle (bu özellik istenirse eklenebilir).
+
+## Diğer Backend Seçenekleri (opsiyonel)
+
+- **Form/e-posta gönderimi:** [Formspree](https://formspree.io) / [EmailJS](https://www.emailjs.com).
 - **WhatsApp:** WhatsApp Cloud API veya Twilio.
 - **AI analiz:** Claude API (sunucu tarafı bir fonksiyon üzerinden).
 
-Bunlar eklendiğinde `store.js` içindeki `fakeAsync` ve demo üretim fonksiyonları gerçek çağrılarla değiştirilir.
+Demo "gönderim/AI" işlevleri `store.js`/panel kodundaki `fakeAsync` çağrılarının gerçek API çağrılarıyla değiştirilmesiyle canlıya alınır.
