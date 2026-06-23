@@ -66,7 +66,9 @@
   }
 
   /* ---------- Form gönderimi ---------- */
-  var currentLead = null;
+  // Kaliteli lead, randevu onaylanınca TEK seferde (insert) kaydedilir;
+  // böylece anonim ziyaretçi update yapmak zorunda kalmaz (güvenli).
+  var pendingLead = null;
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -83,10 +85,16 @@
 
     S.fakeAsync(1100).then(function () {
       var res = scoreLead(data);
-      data.durum = res.kaliteli ? "kaliteli" : "uygun-degil";
       data.kaliteSkoru = res.score;
       data.randevu = null;
-      currentLead = S.saveLead(data);
+      if (res.kaliteli) {
+        data.durum = "kaliteli";
+        pendingLead = data;          // randevu onayında tek insert ile kaydedilecek
+      } else {
+        data.durum = "uygun-degil";
+        pendingLead = null;
+        S.saveLead(data);            // uygun değil: hemen kaydet (insert)
+      }
       renderResult(res);
       btn.disabled = false; btn.textContent = "Gönder →";
       document.getElementById("side-panel").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -211,26 +219,43 @@
   function confirmAppointment() {
     var btn = document.getElementById("confirm-appt");
     btn.disabled = true; btn.textContent = "Oluşturuluyor…";
-    if (currentLead) S.updateLead(currentLead.id, { durum: "randevu", randevu: { tarih: appt.tarih, saat: appt.saat, platform: appt.platform } });
 
-    S.fakeAsync(1000).then(function () {
-      var d = new Date(appt.tarih + "T00:00:00");
-      var pretty = d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
-      document.getElementById("side-panel").innerHTML =
-        '<div class="card result-box result-quality center">' +
-          '<div class="big-icon">✅</div>' +
-          '<h3>Randevunuz oluşturuldu!</h3>' +
-          '<p class="muted">' + S.esc(pretty) + " · " + S.esc(appt.saat) + '</p>' +
-          '<div class="pill-list center" style="justify-content:center; margin:14px 0">' +
-            '<span class="badge badge--green">' + S.esc(appt.platform) + '</span>' +
-            '<span class="badge badge--blue">📧 E-posta gönderildi</span>' +
-            '<span class="badge badge--green">💬 WhatsApp bildirimi</span>' +
-          '</div>' +
-          '<p class="mute2" style="font-size:.85rem">Görüşme linki e-posta ve WhatsApp ile size iletildi. Görüşmede üreticileri ve maliyeti birlikte değerlendireceğiz.</p>' +
-        '</div>';
-      S.toast("Randevu oluşturuldu", "E-posta + WhatsApp bildirimi gönderildi (demo).");
-      S.toast("Görüşme planlandı", appt.platform + " · " + appt.saat, "orange");
+    // Lead'i randevu bilgisiyle birlikte TEK seferde kaydet (insert)
+    var lead = pendingLead || { durum: "randevu", kaliteSkoru: 0 };
+    lead.durum = "randevu";
+    lead.randevu = { tarih: appt.tarih, saat: appt.saat, platform: appt.platform };
+    var saved = S.saveLead(lead);
+
+    // Ekibe e-posta bildirimi (yapılandırılmadıysa sessizce atlanır) + kaydın
+    // Supabase'e yazılması için kısa bekleme, sonra onay sayfasına yönlendir.
+    Promise.all([notifyAgency(saved, appt), S.fakeAsync(900)]).then(function () {
+      var params = new URLSearchParams({
+        ad: saved ? (saved.ad || "") : "",
+        tarih: appt.tarih, saat: appt.saat, platform: appt.platform
+      });
+      window.location.href = "randevu.html?" + params.toString();
     });
+  }
+
+  // EmailJS ile ekibe randevu bildirimi gönder. config.js doldurulmadan
+  // (placeholder) çalışmaz, sessizce atlanır — site normal devam eder.
+  function notifyAgency(lead, appt) {
+    try {
+      var M = window.MAIL || {};
+      var blob = (M.publicKey || "") + " " + (M.serviceId || "") + " " + (M.templateId || "") + " " + (M.to || "");
+      var ready = window.emailjs && M.publicKey && M.serviceId && M.templateId && M.to &&
+        !/EMAILJS_|senin@eposta/.test(blob);
+      if (!ready) return Promise.resolve();
+      try { emailjs.init({ publicKey: M.publicKey }); } catch (e) {}
+      return emailjs.send(M.serviceId, M.templateId, {
+        to_email: M.to,
+        musteri_ad: lead ? lead.ad : "",
+        musteri_telefon: lead ? lead.telefon : "",
+        musteri_eposta: lead ? lead.email : "",
+        urun: lead ? lead.urun : "",
+        tarih: appt.tarih, saat: appt.saat, platform: appt.platform
+      }).then(function () {}, function (e) { console.warn("Mail gönderilemedi:", e); });
+    } catch (e) { return Promise.resolve(); }
   }
 
   /* ---------- init ---------- */

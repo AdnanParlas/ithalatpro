@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Randevunuz Oluşturuldu — İthalatPro</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container">
+      <a class="brand" href="index.html"><span class="logo">İP</span><span>İthalat<span style="color:var(--green)">Pro</span></span></a>
+      <nav class="nav-links"><a class="btn btn--sm btn--ghost" href="index.html">Ana sayfa</a></nav>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container" style="max-width:680px">
+      <div class="card result-quality" id="rv-card" style="text-align:center; padding:36px 28px">
+        <div class="big-icon" style="font-size:3rem">✅</div>
+        <h1 style="font-size:1.8rem; margin-top:6px">Randevunuz oluşturuldu!</h1>
+        <p class="muted" id="rv-greet" style="margin-top:6px">Başvurunuz alındı, görüşme zamanınız ayarlandı.</p>
+
+        <div class="card" id="rv-detail" style="text-align:left; margin:22px 0; background:var(--bg-2)">
+          <div class="cust-card">
+            <div class="kv" style="grid-template-columns:130px 1fr">
+              <div class="k muted">📅 Tarih</div><div id="rv-tarih">—</div>
+              <div class="k muted">🕒 Saat</div><div id="rv-saat">—</div>
+              <div class="k muted">💻 Platform</div><div id="rv-platform">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-result phase-result--green" style="text-align:left">
+          <span class="badge badge--green">ℹ️ Bilgi</span>
+          <strong style="font-weight:600">Görüşme <u>İthalatPro ekibiyle</u> yapılacaktır — Çinli üreticilerle değil. Üreticilerle sizin adınıza biz görüşür, teklifleri toplar ve maliyet raporunu size sunarız.</strong>
+        </div>
+
+        <div class="row" style="justify-content:center; margin-top:24px; gap:12px">
+          <a class="btn btn--lg" id="rv-meet" target="_blank" rel="noopener" style="display:none">🎥 Görüşmeye Katıl</a>
+          <a class="btn btn--lg btn--ghost" id="rv-cal" target="_blank" rel="noopener">📅 Takvime Ekle</a>
+        </div>
+
+        <p class="mute2" id="rv-note" style="font-size:.86rem; margin-top:20px">
+          Görüşme linki ve hatırlatma <strong>e-posta ve WhatsApp</strong> ile size iletilecektir. Görüşme saatinde yukarıdaki butondan / gönderilen linkten katılabilirsiniz.
+        </p>
+
+        <a class="btn btn--ghost btn--block" href="index.html" style="margin-top:18px">← Ana sayfaya dön</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/js/config.js"></script>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var ad = q.get("ad") || "";
+      var tarih = q.get("tarih") || "";
+      var saat = q.get("saat") || "";
+      var platform = q.get("platform") || "Google Meet";
+
+      function fmtTarih(iso) {
+        if (!iso) return "—";
+        try {
+          var d = new Date(iso + "T00:00:00");
+          return d.toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        } catch (e) { return iso; }
+      }
+
+      if (ad) document.getElementById("rv-greet").textContent =
+        "Sayın " + ad + ", başvurunuz alındı ve görüşme zamanınız ayarlandı.";
+      document.getElementById("rv-tarih").textContent = fmtTarih(tarih);
+      document.getElementById("rv-saat").textContent = saat || "—";
+      document.getElementById("rv-platform").textContent = platform;
+
+      // Görüşme oda linki (config.js → window.MEET.link)
+      var meetLink = (window.MEET && window.MEET.link) ? String(window.MEET.link).trim() : "";
+      if (meetLink) {
+        var mb = document.getElementById("rv-meet");
+        mb.href = meetLink; mb.style.display = "inline-flex";
+        mb.textContent = "🎥 " + platform + " görüşmesine katıl";
+      }
+
+      // Google Takvim'e ekle (o saatte etkinlik; Meet linki Google tarafında oluşabilir)
+      if (tarih && saat) {
+        var startD = tarih.replace(/-/g, "");
+        var hm = saat.split(":");
+        var sh = parseInt(hm[0], 10), sm = parseInt(hm[1], 10);
+        var eh = sh, em = sm + 30; if (em >= 60) { eh += 1; em -= 60; }
+        var pad = function (n) { return String(n).padStart(2, "0"); };
+        var start = startD + "T" + pad(sh) + pad(sm) + "00";
+        var end = startD + "T" + pad(eh) + pad(em) + "00";
+        var details = "İthalatPro tedarik görüşmesi (" + platform + ")."
+          + (meetLink ? " Katılım linki: " + meetLink : "");
+        var url = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+          + "&text=" + encodeURIComponent("İthalatPro Görüşmesi")
+          + "&dates=" + start + "/" + end
+          + "&ctz=Europe/Istanbul"
+          + "&details=" + encodeURIComponent(details);
+        document.getElementById("rv-cal").href = url;
+      } else {
+        document.getElementById("rv-cal").style.display = "none";
+      }
+    })();
+  </script>
+</body>
+</html>
