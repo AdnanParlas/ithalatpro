@@ -17,18 +17,18 @@
   };
 
   var TITLES = {
-    dashboard: ["Dashboard", "Faz 1 · Genel Bakış"],
-    leads: ["Lead Listesi", "Faz 1 · Adım 4"],
-    customer: ["Müşteri Kartı & İş Başlat", "Faz 1 · Adım 5"],
-    rfq: ["RFQ Mail Gönderimi", "Faz 1 · Adım 6"],
-    cost: ["Maliyet Hesaplama", "Faz 1 · Adım 7"],
-    report: ["Rapor Teslim", "Faz 1 · Adım 8"],
-    "ai-analiz": ["AI Ürün Analizi", "Faz 2 · Adım 9"],
-    "ai-tedarik": ["AI Tedarikçi Bulma", "Faz 2 · Adım 10"],
-    "mail-oku": ["Mail Okuma (Otomatik)", "Faz 2 · Adım 11"],
-    followup: ["Follow-up Otomasyonu", "Faz 2 · Adım 12"],
-    surec: ["Gelişmiş Panel & Süreç Takip", "Faz 2 · Adım 13"],
-    whatsapp: ["WhatsApp Entegrasyonu", "Faz 2 · Adım 14"]
+    dashboard: ["Özet", "Genel bakış"],
+    leads: ["Başvurular", "Gelen lead'ler"],
+    customer: ["Müşteri & İş", "Görüşme sonrası iş başlat"],
+    rfq: ["Teklif Toplama (RFQ)", "Üreticilere teklif gönder"],
+    cost: ["Maliyet", "Toplam maliyet hesabı"],
+    report: ["Rapor", "Tedarikçi karşılaştırma"],
+    "ai-analiz": ["AI Ürün Analizi", ""],
+    "ai-tedarik": ["AI Tedarikçi Bulma", ""],
+    "mail-oku": ["Mail Okuma", ""],
+    followup: ["Follow-up", ""],
+    surec: ["Süreç Takip", ""],
+    whatsapp: ["WhatsApp", ""]
   };
 
   var state = { view: "dashboard", selectedLead: null, selectedJob: null };
@@ -78,12 +78,6 @@
       '<div class="card"><div class="flex-between" style="margin-bottom:14px"><h3>Son Lead\'ler</h3>' +
         '<button class="btn btn--sm btn--ghost" data-goto="leads">Tümünü gör →</button></div>' +
         '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Lead</th><th>Sektör</th><th>Bütçe</th><th>Durum</th><th>Tarih</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '</div>' +
-      '<div class="row" style="margin-top:16px">' +
-        '<div class="card" style="flex:1; min-width:260px"><h3>⚡ Faz 1 — Çalışan Çekirdek</h3><p class="muted" style="font-size:.9rem; margin-top:6px">Lead → Meet → RFQ → Rapor → Para. Hemen satışa hazır.</p>' +
-          '<div class="pill-list" style="margin-top:12px"><span class="badge badge--green">2-3 hafta kurulum</span><span class="badge badge--green">Düşük maliyet</span></div></div>' +
-        '<div class="card" style="flex:1; min-width:260px"><h3>📈 Faz 2 — Otomasyon</h3><p class="muted" style="font-size:.9rem; margin-top:6px">%70+ otomatik süreç. AI tedarikçi bulma, mail okuma, follow-up, WhatsApp.</p>' +
-          '<div class="pill-list" style="margin-top:12px"><span class="badge badge--orange">Daha yüksek kapasite</span><span class="badge badge--orange">Zaman tasarrufu</span></div></div>' +
       '</div></div>';
 
     root().querySelectorAll("[data-goto]").forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-goto")); }); });

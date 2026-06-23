@@ -226,8 +226,7 @@
             '<span class="badge badge--blue">📧 E-posta gönderildi</span>' +
             '<span class="badge badge--green">💬 WhatsApp bildirimi</span>' +
           '</div>' +
-          '<p class="mute2" style="font-size:.85rem">Görüşme linki e-posta ve WhatsApp ile iletildi (demo). Görüşmeden sonra ekibimiz panelden işinizi başlatacak.</p>' +
-          '<a class="btn btn--ghost btn--block" href="panel.html" style="margin-top:14px">Bu lead\'i Admin Panelde gör →</a>' +
+          '<p class="mute2" style="font-size:.85rem">Görüşme linki e-posta ve WhatsApp ile size iletildi. Görüşmede üreticileri ve maliyeti birlikte değerlendireceğiz.</p>' +
         '</div>';
       S.toast("Randevu oluşturuldu", "E-posta + WhatsApp bildirimi gönderildi (demo).");
       S.toast("Görüşme planlandı", appt.platform + " · " + appt.saat, "orange");
