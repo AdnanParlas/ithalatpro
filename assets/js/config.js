@@ -11,6 +11,6 @@
       localStorage moduyla (demo) çalışır — hiçbir şey bozulmaz.
    ============================================================ */
 window.SUPA = {
-  url: "https://PROJE_REF.supabase.co",
-  key: "ANON_KEY"
+  url: "https://bnzcomfnvjrlqtrzddge.supabase.co",
+  key: "sb_publishable_uKXkdpHy9aN-f4tx0vnAFQ_DXsZQ2am"
 };
