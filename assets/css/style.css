@@ -218,6 +218,27 @@ table.tbl tr:last-child td { border-bottom: none; }
 .platform.is-active { border-color: var(--green); background: var(--green-soft); }
 .platform .ico { font-size: 1.5rem; }
 
+/* ===== Funnel / Wizard ===== */
+.wizard { max-width: 660px; margin-inline: auto; }
+.wiz-progress { height: 6px; background: var(--bg-2); border-radius: 999px; overflow: hidden; margin-bottom: 22px; }
+.wiz-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--green-d)); transition: width .35s ease; }
+.wiz-step { animation: fadeUp .3s ease; }
+.wiz-step h3 { font-size: 1.3rem; margin: 6px 0 2px; }
+.opts { display: grid; gap: 12px; margin-top: 20px; }
+.opt {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  font: inherit; font-weight: 600; font-size: 1rem; color: var(--text); cursor: pointer;
+  padding: 16px 18px; border: 1px solid var(--border); background: var(--bg-2); border-radius: 12px;
+  transition: border-color .12s, background .12s, transform .1s;
+}
+.opt:hover { border-color: var(--green); transform: translateX(2px); }
+.opt.is-on { border-color: var(--green); background: var(--green-soft); }
+.opt .opt-ico { font-size: 1.5rem; }
+.opt .opt-arrow { margin-left: auto; color: var(--text-mute); }
+.wiz-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.wiz-back { background: transparent; border-color: var(--border); color: var(--text-dim); }
+.wiz-back:hover { background: var(--panel-2); }
+
 .benefits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .benefit { text-align: center; padding: 22px; }
 .benefit .ico { font-size: 2rem; margin-bottom: 8px; }

@@ -37,24 +37,33 @@
   function toRow(o) { return { id: o.id, data: o }; }
 
   /* ---------- backend yazma (write-through) ---------- */
-  function persist(table, obj) {
+  var pendingWrite = Promise.resolve();   // son yazma sözü (flush için)
+  // isNew=true → INSERT (anon başvuru formu yalnızca insert yapabilir),
+  // isNew=false → UPDATE (yalnızca giriş yapmış panel kullanır).
+  function persist(table, obj, isNew) {
     if (sb) {
-      sb.from(table).upsert(toRow(obj)).then(function (r) {
+      var q = isNew ? sb.from(table).insert(toRow(obj))
+                    : sb.from(table).update({ data: obj }).eq("id", obj.id);
+      pendingWrite = q.then(function (r) {
         if (r.error) toast("Kayıt hatası", r.error.message, "red");
       });
-    } else {
-      lsWrite(LS[table], cache[table]);
+      return pendingWrite;
     }
+    lsWrite(LS[table], cache[table]);
+    return Promise.resolve();
   }
   function persistArray(table) {
     if (sb) {
-      sb.from(table).upsert(cache[table].map(toRow)).then(function (r) {
+      pendingWrite = sb.from(table).upsert(cache[table].map(toRow)).then(function (r) {
         if (r.error) toast("Kayıt hatası", r.error.message, "red");
       });
-    } else {
-      lsWrite(LS[table], cache[table]);
+      return pendingWrite;
     }
+    lsWrite(LS[table], cache[table]);
+    return Promise.resolve();
   }
+  // Bekleyen yazmanın bitmesini bekle (sayfa değiştirmeden önce kullanılır)
+  function flush() { return pendingWrite; }
 
   /* ---------- açılışta tüm veriyi cache'e yükle ---------- */
   function load() {
@@ -75,15 +84,17 @@
   function getLeads() { return cache.leads; }
   function getLead(id) { var i = idx(cache.leads, id); return i >= 0 ? cache.leads[i] : null; }
   function saveLead(lead) {
-    if (!lead.id) { lead.id = uid("lead"); lead.createdAt = Date.now(); cache.leads.unshift(lead); }
-    else { var i = idx(cache.leads, lead.id); if (i >= 0) cache.leads[i] = lead; else cache.leads.unshift(lead); }
-    persist("leads", lead);
+    var i = lead.id ? idx(cache.leads, lead.id) : -1;
+    var isNew = (i < 0);
+    if (!lead.id) { lead.id = uid("lead"); lead.createdAt = Date.now(); }
+    if (i >= 0) cache.leads[i] = lead; else cache.leads.unshift(lead);
+    persist("leads", lead, isNew);
     return lead;
   }
   function updateLead(id, patch) {
     var l = getLead(id); if (!l) return null;
     Object.keys(patch).forEach(function (k) { l[k] = patch[k]; });
-    persist("leads", l);
+    persist("leads", l, false);
     return l;
   }
 
@@ -92,9 +103,11 @@
   function getJob(id) { var i = idx(cache.jobs, id); return i >= 0 ? cache.jobs[i] : null; }
   function getJobByLead(leadId) { return cache.jobs.filter(function (j) { return j.leadId === leadId; })[0] || null; }
   function saveJob(job) {
-    if (!job.id) { job.id = uid("job"); job.createdAt = Date.now(); cache.jobs.unshift(job); }
-    else { var i = idx(cache.jobs, job.id); if (i >= 0) cache.jobs[i] = job; else cache.jobs.unshift(job); }
-    persist("jobs", job);
+    var i = job.id ? idx(cache.jobs, job.id) : -1;
+    var isNew = (i < 0);
+    if (!job.id) { job.id = uid("job"); job.createdAt = Date.now(); }
+    if (i >= 0) cache.jobs[i] = job; else cache.jobs.unshift(job);
+    persist("jobs", job, isNew);
     return job;
   }
 
@@ -229,7 +242,7 @@
     MODE: MODE, MANUFACTURERS: MANUFACTURERS,
     authConfigured: !!sb,
     currentUser: currentUser, signUp: signUp, signIn: signIn, signOut: signOut,
-    load: load,
+    load: load, flush: flush,
     getLeads: getLeads, getLead: getLead, saveLead: saveLead, updateLead: updateLead,
     getJobs: getJobs, getJob: getJob, getJobByLead: getJobByLead, saveJob: saveJob,
     getFollowups: getFollowups, saveFollowups: saveFollowups,

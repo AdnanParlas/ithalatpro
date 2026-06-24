@@ -58,70 +58,15 @@
     </div>
   </section>
 
-  <!-- BAŞVURU (Adım 2: Lead Form & Ön Eleme) + (Adım 3: Randevu) -->
+  <!-- BAŞVURU FUNNEL (çok adımlı soru → form → randevu) -->
   <section class="section" id="basvuru">
-    <div class="container">
-      <span class="eyebrow">Adım 2 — Başvuru & Ön Eleme</span>
-      <h2>Başvuru Formu</h2>
-      <p class="sub">Formu doldurun; sistemimiz başvurunuzu otomatik değerlendirip uygunsa sizi görüşmeye yönlendirir.</p>
-
-      <div class="apply-grid">
-        <!-- FORM -->
-        <div class="card" id="form-card">
-          <form id="lead-form" novalidate>
-            <div class="form-cols">
-              <label class="field"><span>Ad Soyad *</span><input name="ad" required placeholder="Adınız Soyadınız" /></label>
-              <label class="field"><span>Telefon *</span><input name="telefon" required placeholder="+90 5xx xxx xx xx" /></label>
-            </div>
-            <label class="field"><span>E-posta *</span><input name="email" type="email" required placeholder="ornek@firma.com" /></label>
-            <div class="form-cols">
-              <label class="field"><span>Aylık Bütçeniz *</span>
-                <select name="butce" required>
-                  <option value="">Seçiniz</option>
-                  <option value="<5K">5.000$ altı</option>
-                  <option value="5K-20K">5.000$ - 20.000$</option>
-                  <option value="20K+">20.000$+</option>
-                  <option value="50K+">50.000$+</option>
-                </select>
-              </label>
-              <label class="field"><span>Sektör / Ürün Kategorisi *</span>
-                <select name="sektor" required>
-                  <option value="">Seçiniz</option>
-                  <option>Ev & Yaşam</option><option>Elektronik</option><option>Kozmetik</option>
-                  <option>Tekstil</option><option>Oyuncak</option><option>Diğer</option>
-                </select>
-              </label>
-            </div>
-            <label class="field"><span>İthal etmek istediğiniz ürün *</span><input name="urun" required placeholder="Örn: Plastik saklama kutusu" /></label>
-            <div class="form-cols">
-              <label class="field"><span>Daha önce ithalat yaptınız mı? *</span>
-                <select name="ithalatGecmisi" required>
-                  <option value="">Seçiniz</option><option>Evet</option><option>Hayır</option>
-                </select>
-              </label>
-              <label class="field"><span>Aciliyet *</span>
-                <select name="aciliyet" required>
-                  <option value="">Seçiniz</option><option>Yüksek</option><option>Orta</option><option>Düşük</option>
-                </select>
-              </label>
-            </div>
-            <button class="btn btn--block btn--lg" type="submit">Gönder →</button>
-            <p class="mute2 center" style="margin-top:12px; font-size:.8rem">🔒 Bilgileriniz yalnızca bu tarayıcıda saklanır (demo).</p>
-          </form>
-        </div>
-
-        <!-- SONUÇ / ÖN ELEME -->
-        <div id="side-panel">
-          <div class="card center" id="placeholder-panel">
-            <div class="big-icon">🤖</div>
-            <h3>Otomatik Ön Eleme</h3>
-            <p class="muted">Formu gönderdiğinizde sistemimiz bütçe, ithalat geçmişi ve aciliyete göre başvurunuzu anında değerlendirir.</p>
-            <div class="pill-list center" style="justify-content:center; margin-top:14px">
-              <span class="badge badge--green">Kaliteli Lead</span>
-              <span class="badge badge--mute">Uygun Değil</span>
-            </div>
-          </div>
-        </div>
+    <div class="container" style="max-width:680px">
+      <span class="eyebrow">Ön Değerlendirme</span>
+      <h2>Size özel tedarik görüşmesi</h2>
+      <p class="sub">Birkaç kısa soru; uygunsanız sizi Google Meet / Zoom görüşmesine alıyoruz.</p>
+      <div class="card wizard">
+        <div class="wiz-progress"><div class="wiz-bar" id="wiz-bar"></div></div>
+        <div id="wiz-body"><!-- public.js doldurur --></div>
       </div>
     </div>
   </section>
