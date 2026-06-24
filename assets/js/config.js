@@ -17,23 +17,22 @@ window.SUPA = {
 
 /* ============================================================
    BİLDİRİM — randevu alınınca SANA haber gelsin (e-posta + WhatsApp).
-   Anahtarları alınca doldur; boş/placeholder kalan kanal sessizce atlanır.
 
-   • E-POSTA (Web3Forms — ücretsiz, hesap gerektirmez):
-       1) https://web3forms.com → "Create your Access Key" → e-postanı yaz
-       2) E-postana gelen Access Key'i web3formsKey'e yapıştır
-       → Randevu maili o e-postaya düşer.
+   • E-POSTA (FormSubmit — anahtar GEREKMEZ, sadece e-posta):
+       ownerEmail'e adresini yaz. İlk randevuda FormSubmit sana bir
+       "Activate" maili yollar; ondaki linke BİR KEZ tıklarsın, biter.
+       Sonraki tüm randevular o adrese düşer. (Boş bırakılırsa atlanır.)
 
    • WHATSAPP (CallMeBot — kendi numarana ücretsiz bildirim):
-       1) +34 644 51 95 23 numarasını telefon rehberine ekle
-       2) Bu numaraya WhatsApp'tan yaz: "I allow callmebot to send me messages"
+       1) +34 644 51 95 23 numarasını rehbere ekle
+       2) WhatsApp'tan ona yaz: "I allow callmebot to send me messages"
        3) Dönen "apikey" değerini callmebotApikey'e yapıştır
-       (ownerPhone numaran zaten aşağıda yazılı)
+       (ownerPhone numaran zaten yazılı; apikey gelince doldururuz)
    ============================================================ */
 window.NOTIFY = {
+  ownerEmail: "adnanparlas35@hotmail.com",
   ownerPhone: "+905326534005",
-  callmebotApikey: "CALLMEBOT_APIKEY",
-  web3formsKey: "WEB3FORMS_ACCESS_KEY"
+  callmebotApikey: "CALLMEBOT_APIKEY"
 };
 
 /* ============================================================

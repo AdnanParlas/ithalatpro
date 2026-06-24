@@ -273,16 +273,22 @@
 
     var jobs = [];
 
-    // E-POSTA — Web3Forms
-    if (N.web3formsKey && !/WEB3FORMS_/.test(N.web3formsKey)) {
-      jobs.push(fetch("https://api.web3forms.com/submit", {
+    // E-POSTA — FormSubmit (anahtar gerekmez; ownerEmail'e gönderir)
+    if (N.ownerEmail && /@/.test(N.ownerEmail)) {
+      jobs.push(fetch("https://formsubmit.co/ajax/" + encodeURIComponent(N.ownerEmail), {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
-          access_key: N.web3formsKey,
-          subject: "🔔 Yeni Randevu: " + (lead.ad || ""),
-          from_name: "İthalatPro",
-          message: msg
+          _subject: "🔔 Yeni Randevu: " + (lead.ad || ""),
+          _template: "table",
+          Musteri: lead.ad || "-",
+          Telefon: lead.telefon || "-",
+          Eposta: lead.email || "-",
+          Urun: lead.urun || "-",
+          Butce: lead.butce || "-",
+          Randevu: appt.tarih + " " + appt.saat,
+          Platform: appt.platform,
+          ToplantiOlustur: gcalLink(appt.tarih, appt.saat, appt.platform)
         })
       }).then(function () {}, function (e) { console.warn("E-posta gönderilemedi:", e); }));
     }
