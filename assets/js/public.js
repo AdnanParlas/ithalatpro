@@ -62,7 +62,7 @@
 
     if ((d.urun || "").trim().length > 3) score += 4;
     score = Math.max(0, Math.min(100, score));
-    return { score: score, kaliteli: score >= 60, reasons: reasons };
+    return { score: score, kaliteli: score >= 70, reasons: reasons };
   }
 
   /* ---------- Form gönderimi ---------- */
