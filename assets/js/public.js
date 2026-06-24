@@ -226,9 +226,12 @@
     lead.randevu = { tarih: appt.tarih, saat: appt.saat, platform: appt.platform };
     var saved = S.saveLead(lead);
 
-    // Ekibe e-posta bildirimi (yapılandırılmadıysa sessizce atlanır) + kaydın
-    // Supabase'e yazılması için kısa bekleme, sonra onay sayfasına yönlendir.
-    Promise.all([notifyAgency(saved, appt), S.fakeAsync(900)]).then(function () {
+    // Sana bildirim gönder (e-posta + WhatsApp) + kaydın Supabase'e yazılması
+    // için kısa bekleme; en geç 5 sn'de onay sayfasına yönlendir.
+    Promise.race([
+      Promise.all([notifyOwner(saved, appt), S.fakeAsync(900)]),
+      S.fakeAsync(5000)
+    ]).then(function () {
       var params = new URLSearchParams({
         ad: saved ? (saved.ad || "") : "",
         tarih: appt.tarih, saat: appt.saat, platform: appt.platform
@@ -237,25 +240,63 @@
     });
   }
 
-  // EmailJS ile ekibe randevu bildirimi gönder. config.js doldurulmadan
-  // (placeholder) çalışmaz, sessizce atlanır — site normal devam eder.
-  function notifyAgency(lead, appt) {
-    try {
-      var M = window.MAIL || {};
-      var blob = (M.publicKey || "") + " " + (M.serviceId || "") + " " + (M.templateId || "") + " " + (M.to || "");
-      var ready = window.emailjs && M.publicKey && M.serviceId && M.templateId && M.to &&
-        !/EMAILJS_|senin@eposta/.test(blob);
-      if (!ready) return Promise.resolve();
-      try { emailjs.init({ publicKey: M.publicKey }); } catch (e) {}
-      return emailjs.send(M.serviceId, M.templateId, {
-        to_email: M.to,
-        musteri_ad: lead ? lead.ad : "",
-        musteri_telefon: lead ? lead.telefon : "",
-        musteri_eposta: lead ? lead.email : "",
-        urun: lead ? lead.urun : "",
-        tarih: appt.tarih, saat: appt.saat, platform: appt.platform
-      }).then(function () {}, function (e) { console.warn("Mail gönderilemedi:", e); });
-    } catch (e) { return Promise.resolve(); }
+  // Google Takvim "etkinlik oluştur" linki (tıklayınca Meet linki de oluşabilir)
+  function gcalLink(tarih, saat, platform) {
+    if (!tarih || !saat) return "";
+    var d = tarih.replace(/-/g, "");
+    var hm = saat.split(":"); var sh = parseInt(hm[0], 10), sm = parseInt(hm[1], 10);
+    var eh = sh, em = sm + 30; if (em >= 60) { eh += 1; em -= 60; }
+    var p = function (n) { return String(n).padStart(2, "0"); };
+    return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+      "&text=" + encodeURIComponent("İthalatPro Görüşmesi") +
+      "&dates=" + d + "T" + p(sh) + p(sm) + "00/" + d + "T" + p(eh) + p(em) + "00" +
+      "&ctz=Europe/Istanbul" +
+      "&details=" + encodeURIComponent("Tedarik görüşmesi (" + (platform || "") + ").");
+  }
+
+  // Randevu alınınca SANA bildirim: e-posta (Web3Forms) + WhatsApp (CallMeBot).
+  // config.js doldurulmadan (placeholder) ilgili kanal sessizce atlanır.
+  function notifyOwner(lead, appt) {
+    lead = lead || {};
+    var N = window.NOTIFY || {};
+    var msg = [
+      "🔔 Yeni Randevu — İthalatPro",
+      "Müşteri: " + (lead.ad || "-"),
+      "Telefon: " + (lead.telefon || "-"),
+      "E-posta: " + (lead.email || "-"),
+      "Ürün: " + (lead.urun || "-"),
+      "Bütçe: " + (lead.butce || "-"),
+      "Tarih/Saat: " + appt.tarih + " " + appt.saat,
+      "Platform: " + appt.platform,
+      "Toplantı oluştur: " + gcalLink(appt.tarih, appt.saat, appt.platform)
+    ].join("\n");
+
+    var jobs = [];
+
+    // E-POSTA — Web3Forms
+    if (N.web3formsKey && !/WEB3FORMS_/.test(N.web3formsKey)) {
+      jobs.push(fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          access_key: N.web3formsKey,
+          subject: "🔔 Yeni Randevu: " + (lead.ad || ""),
+          from_name: "İthalatPro",
+          message: msg
+        })
+      }).then(function () {}, function (e) { console.warn("E-posta gönderilemedi:", e); }));
+    }
+
+    // WHATSAPP — CallMeBot (image beacon; CORS gerektirmez, fire-and-forget)
+    if (N.callmebotApikey && N.ownerPhone && !/CALLMEBOT_/.test(N.callmebotApikey)) {
+      var phone = String(N.ownerPhone).replace(/[^0-9]/g, "");
+      var url = "https://api.callmebot.com/whatsapp.php?phone=" + phone +
+        "&text=" + encodeURIComponent(msg) + "&apikey=" + encodeURIComponent(N.callmebotApikey);
+      try { (new Image()).src = url; } catch (e) {}
+      jobs.push(S.fakeAsync(600));
+    }
+
+    return Promise.all(jobs);
   }
 
   /* ---------- init ---------- */
