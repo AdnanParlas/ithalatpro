@@ -104,7 +104,8 @@
         + (urun ? "Ürün: " + urun + "\n" : "")
         + (sektor ? "Sektör: " + sektor + "\n" : "")
         + (konteyner ? "Konteyner: " + konteyner + "\n" : "")
-        + ((tarih && saat) ? "Randevu: " + fmtTarih(tarih) + " " + saat + "\n" : "");
+        + ((tarih && saat) ? "Randevu: " + fmtTarih(tarih) + " " + saat + "\n" : "")
+        + (platform ? "Görüşme: " + platform + " üzerinden\n" : "");
       document.getElementById("rv-wa").href =
         "https://wa.me/" + waPhone + "?text=" + encodeURIComponent(waText);
 
