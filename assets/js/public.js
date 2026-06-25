@@ -10,9 +10,17 @@
 
   /* ---------- durum ---------- */
   var form = {
-    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "" },
+    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "", gecmis: "" },
     appt: { tarih: null, saat: null, platform: "Google Meet" }
   };
+
+  // basla.html ön sorularından gelen cevapları forma taşı (çift soru olmasın)
+  function prefillFromUrl() {
+    var q = new URLSearchParams(location.search);
+    if (q.get("sektor")) form.data.sektor = q.get("sektor");
+    if (q.get("konteyner")) form.data.konteyner = q.get("konteyner");
+    if (q.get("gecmis")) form.data.gecmis = q.get("gecmis");
+  }
 
   function body() { return document.getElementById("form-body"); }
 
@@ -126,7 +134,7 @@
 
     var lead = {
       ad: d.ad, telefon: d.telefon, email: d.email,
-      urun: d.urun, sektor: d.sektor, konteyner: d.konteyner,
+      urun: d.urun, sektor: d.sektor, konteyner: d.konteyner, ithalatGecmisi: d.gecmis,
       durum: "randevu", kaliteSkoru: 100,
       randevu: { tarih: a.tarih, saat: a.saat, platform: a.platform }
     };
@@ -196,6 +204,7 @@
       "Ürün: " + (lead.urun || "-"),
       "Sektör: " + (lead.sektor || "-"),
       "Konteyner: " + (lead.konteyner || "-"),
+      "İthalat geçmişi: " + (lead.ithalatGecmisi || "-"),
       "Tarih/Saat: " + appt.tarih + " " + appt.saat,
       "Platform: " + appt.platform,
       (meet ? "Google Meet linki: " + meet : "Toplantı oluştur: " + gcalLink(appt.tarih, appt.saat, appt.platform))
@@ -210,6 +219,7 @@
           _template: "table",
           Musteri: lead.ad || "-", Telefon: lead.telefon || "-", Eposta: lead.email || "-",
           Urun: lead.urun || "-", Sektor: lead.sektor || "-", Konteyner: lead.konteyner || "-",
+          IthalatGecmisi: lead.ithalatGecmisi || "-",
           Randevu: appt.tarih + " " + appt.saat, Platform: appt.platform,
           GoogleMeet: meet || "-",
           ToplantiOlustur: gcalLink(appt.tarih, appt.saat, appt.platform)
@@ -228,7 +238,14 @@
 
   /* ---------- init ---------- */
   document.addEventListener("DOMContentLoaded", function () {
+    prefillFromUrl();
     render();
     S.load().catch(function (e) { console.warn("Store.load:", e); });
+    // Ön sorulardan geldiyse doğrudan forma kaydır
+    var q = new URLSearchParams(location.search);
+    if (q.get("sektor") || q.get("konteyner") || q.get("gecmis")) {
+      var sec = document.getElementById("basvuru");
+      if (sec) window.scrollTo({ top: sec.offsetTop - 70, behavior: "smooth" });
+    }
   });
 })();
