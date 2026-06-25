@@ -42,6 +42,9 @@
           <a class="btn btn--lg" id="rv-meet" target="_blank" rel="noopener" style="display:none">🎥 Görüşmeye Katıl</a>
           <a class="btn btn--lg btn--ghost" id="rv-cal" target="_blank" rel="noopener">📅 Takvime Ekle</a>
         </div>
+        <div class="row" style="justify-content:center; margin-top:12px">
+          <a class="btn btn--lg btn--block" id="rv-wa" target="_blank" rel="noopener" style="background:#25D366; border-color:#25D366; color:#06281a">💬 WhatsApp'tan bize ulaşın</a>
+        </div>
 
         <p class="mute2" id="rv-note" style="font-size:.86rem; margin-top:20px">
           Görüşme linki ve hatırlatma <strong>e-posta ve WhatsApp</strong> ile size iletilecektir. Görüşme saatinde yukarıdaki butondan / gönderilen linkten katılabilirsiniz.
@@ -61,6 +64,9 @@
       var saat = q.get("saat") || "";
       var platform = q.get("platform") || "Google Meet";
       var urun = q.get("urun") || "";
+      var sektor = q.get("sektor") || "";
+      var konteyner = q.get("konteyner") || "";
+      var telefon = q.get("telefon") || "";
 
       function fmtTarih(iso) {
         if (!iso) return "—";
@@ -89,6 +95,18 @@
         mb.href = meetLink; mb.style.display = "inline-flex";
         mb.textContent = "🎥 " + platform + " görüşmesine katıl";
       }
+
+      // WhatsApp'tan bize ulaş (bilgiler ön-dolu; müşteri "gönder"e basınca bize düşer)
+      var waPhone = String((window.NOTIFY && window.NOTIFY.ownerPhone) || "+905326534005").replace(/[^0-9]/g, "");
+      var waText = "Merhaba, İthalatPro üzerinden görüşme talebi oluşturdum.\n"
+        + (ad ? "Ad: " + ad + "\n" : "")
+        + (telefon ? "Telefon: " + telefon + "\n" : "")
+        + (urun ? "Ürün: " + urun + "\n" : "")
+        + (sektor ? "Sektör: " + sektor + "\n" : "")
+        + (konteyner ? "Konteyner: " + konteyner + "\n" : "")
+        + ((tarih && saat) ? "Randevu: " + fmtTarih(tarih) + " " + saat + "\n" : "");
+      document.getElementById("rv-wa").href =
+        "https://wa.me/" + waPhone + "?text=" + encodeURIComponent(waText);
 
       // Google Takvim'e ekle (o saatte etkinlik; Meet linki Google tarafında oluşabilir)
       if (tarih && saat) {

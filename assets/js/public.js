@@ -10,7 +10,7 @@
 
   /* ---------- durum ---------- */
   var form = {
-    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", miktarKg: "" },
+    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "" },
     appt: { tarih: null, saat: null, platform: "Google Meet" }
   };
 
@@ -29,9 +29,11 @@
 
         '<span class="badge badge--green" style="margin-top:18px; display:inline-block">Ürün Bilgileri</span>' +
         '<label class="field" style="margin-top:14px"><span>Düşündüğünüz ürün *</span><input id="f-urun" value="' + esc(form.data.urun) + '" placeholder="Örn: Plastik saklama kutusu, LED aydınlatma…" /></label>' +
-        '<div class="form-cols">' +
-          '<label class="field"><span>Sektör *</span><input id="f-sektor" value="' + esc(form.data.sektor) + '" placeholder="Örn: Ev & Yaşam, Elektronik…" /></label>' +
-          '<label class="field"><span>Tahmini miktar (kg) *</span><input id="f-kg" type="number" min="0" value="' + esc(form.data.miktarKg) + '" placeholder="Örn: 500" /></label>' +
+        '<label class="field"><span>Sektör *</span><input id="f-sektor" value="' + esc(form.data.sektor) + '" placeholder="Örn: Ev & Yaşam, Elektronik…" /></label>' +
+        '<span class="muted" style="font-size:.85rem; font-weight:600">Konteyner *</span>' +
+        '<div class="platforms" id="kont-wrap" style="margin-top:8px">' +
+          '<div class="platform' + (form.data.konteyner === "20\'lik" ? " is-active" : "") + '" data-k="20\'lik"><span class="ico">📦</span><div><b>20\'lik konteyner</b></div></div>' +
+          '<div class="platform' + (form.data.konteyner === "40\'lık" ? " is-active" : "") + '" data-k="40\'lık"><span class="ico">🗃️</span><div><b>40\'lık konteyner</b></div></div>' +
         '</div>' +
 
         '<span class="badge badge--green" style="margin-top:18px; display:inline-block">📅 Google Meet Görüşmesi</span>' +
@@ -43,6 +45,12 @@
       '</div>';
 
     renderCalendar(); renderSlots();
+    body().querySelectorAll("#kont-wrap .platform").forEach(function (p) {
+      p.addEventListener("click", function () {
+        body().querySelectorAll("#kont-wrap .platform").forEach(function (x) { x.classList.remove("is-active"); });
+        p.classList.add("is-active"); form.data.konteyner = p.getAttribute("data-k");
+      });
+    });
     body().querySelector("#f-confirm").addEventListener("click", confirmForm);
   }
 
@@ -95,7 +103,6 @@
     form.data.email = v("f-email").trim();
     form.data.urun = v("f-urun").trim();
     form.data.sektor = v("f-sektor").trim();
-    form.data.miktarKg = v("f-kg").trim();
   }
 
   function checkReady() {
@@ -107,9 +114,10 @@
   function confirmForm() {
     saveFields();
     var d = form.data, a = form.appt;
-    if (!d.ad || !d.telefon || !d.email || !d.urun || !d.sektor || !d.miktarKg) {
+    if (!d.ad || !d.telefon || !d.email || !d.urun || !d.sektor) {
       S.toast("Eksik bilgi", "Lütfen tüm alanları doldurun.", "red"); return;
     }
+    if (!d.konteyner) { S.toast("Konteyner seçin", "Lütfen 20'lik veya 40'lık seçin.", "red"); return; }
     if (d.email.indexOf("@") < 0) { S.toast("E-posta hatalı", "Geçerli bir e-posta girin.", "red"); return; }
     if (!a.tarih || !a.saat) { S.toast("Randevu seçin", "Lütfen bir gün ve saat seçin.", "red"); return; }
 
@@ -118,7 +126,7 @@
 
     var lead = {
       ad: d.ad, telefon: d.telefon, email: d.email,
-      urun: d.urun, sektor: d.sektor, miktarKg: d.miktarKg,
+      urun: d.urun, sektor: d.sektor, konteyner: d.konteyner,
       durum: "randevu", kaliteSkoru: 100,
       randevu: { tarih: a.tarih, saat: a.saat, platform: a.platform }
     };
@@ -134,7 +142,9 @@
         ]).then(function () {
           var params = new URLSearchParams({
             ad: saved.ad || "", tarih: a.tarih, saat: a.saat,
-            platform: a.platform, urun: saved.urun || ""
+            platform: a.platform, urun: saved.urun || "",
+            sektor: saved.sektor || "", konteyner: saved.konteyner || "",
+            telefon: saved.telefon || ""
           });
           if (meetLink) params.set("meet", meetLink);
           window.location.href = "randevu.html?" + params.toString();
@@ -152,7 +162,7 @@
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPA.key, "apikey": SUPA.key },
       body: JSON.stringify({
         ad: lead.ad, email: lead.email, tarih: appt.tarih, saat: appt.saat,
-        urun: lead.urun, sektor: lead.sektor, miktarKg: lead.miktarKg
+        urun: lead.urun, sektor: lead.sektor, konteyner: lead.konteyner
       })
     }).then(function (r) { return r.json(); })
       .then(function (d) { return (d && d.meetLink) ? d.meetLink : ""; })
@@ -185,7 +195,7 @@
       "E-posta: " + (lead.email || "-"),
       "Ürün: " + (lead.urun || "-"),
       "Sektör: " + (lead.sektor || "-"),
-      "Tahmini miktar: " + (lead.miktarKg || "-") + " kg",
+      "Konteyner: " + (lead.konteyner || "-"),
       "Tarih/Saat: " + appt.tarih + " " + appt.saat,
       "Platform: " + appt.platform,
       (meet ? "Google Meet linki: " + meet : "Toplantı oluştur: " + gcalLink(appt.tarih, appt.saat, appt.platform))
@@ -199,7 +209,7 @@
           _subject: "🔔 Yeni Görüşme: " + (lead.ad || ""),
           _template: "table",
           Musteri: lead.ad || "-", Telefon: lead.telefon || "-", Eposta: lead.email || "-",
-          Urun: lead.urun || "-", Sektor: lead.sektor || "-", MiktarKg: (lead.miktarKg || "-") + " kg",
+          Urun: lead.urun || "-", Sektor: lead.sektor || "-", Konteyner: lead.konteyner || "-",
           Randevu: appt.tarih + " " + appt.saat, Platform: appt.platform,
           GoogleMeet: meet || "-",
           ToplantiOlustur: gcalLink(appt.tarih, appt.saat, appt.platform)

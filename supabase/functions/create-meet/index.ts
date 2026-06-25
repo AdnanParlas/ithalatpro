@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { ad, email, tarih, saat, urun, sektor, miktarKg } = body ?? {};
+    const { ad, email, tarih, saat, urun, sektor, konteyner } = body ?? {};
 
     // tarih: "YYYY-MM-DD", saat: "HH:MM"
     if (!tarih || !saat || !/^\d{4}-\d{2}-\d{2}$/.test(tarih) || !/^\d{2}:\d{2}$/.test(saat)) {
@@ -73,7 +73,7 @@ Deno.serve(async (req: Request) => {
       "İthalatPro tedarik görüşmesi (İthalatPro ekibiyle).\n" +
       (urun ? "Ürün: " + urun + "\n" : "") +
       (sektor ? "Sektör: " + sektor + "\n" : "") +
-      (miktarKg ? "Tahmini miktar: " + miktarKg + " kg\n" : "");
+      (konteyner ? "Konteyner: " + konteyner + "\n" : "");
 
     const event = {
       summary: "İthalatPro Görüşmesi" + (ad ? " — " + ad : ""),
