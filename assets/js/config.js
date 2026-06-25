@@ -36,10 +36,20 @@ window.NOTIFY = {
 };
 
 /* ============================================================
-   GÖRÜŞME ODASI — randevu sayfasında ve mailde gösterilecek link.
-   Sabit kişisel Meet/Zoom oda linkini yaz (herkes o saatte oradan katılır).
-   Boş kalırsa link gösterilmez, sadece "Takvime Ekle" çıkar.
+   GÖRÜŞME LİNKİ — iki mod:
+
+   1) OTOMATİK (GERÇEK Google Meet — her randevuya AYRI link):
+      useGoogleApi: true yap. Site, randevu onayında Supabase Edge
+      Function'ı (create-meet) çağırır; Google Calendar API gerçek bir
+      Meet linki üretir ve daveti HEM sana HEM müşteriye e-postayla yollar,
+      ikinizin de takvimine ekler. Kurulum: supabase/functions/create-meet/SETUP.md
+
+   2) SABİT ODA (yedek): link alanına kalıcı bir Meet/Zoom oda linki yaz.
+      useGoogleApi kapalıysa (false) bu link kullanılır. Boşsa sadece
+      "Takvime Ekle" çıkar.
    ============================================================ */
 window.MEET = {
-  link: ""   // örn: https://meet.google.com/abc-defg-hij  veya Zoom oda linkin
+  useGoogleApi: false,             // SETUP.md tamamlanınca true yap
+  functionName: "create-meet",     // Supabase Edge Function adı
+  link: ""                         // yedek sabit oda linki (örn. https://meet.google.com/abc-defg-hij)
 };

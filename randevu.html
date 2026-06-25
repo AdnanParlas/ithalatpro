@@ -81,8 +81,9 @@
         document.getElementById("rv-urun").style.display = "";
       }
 
-      // Görüşme oda linki (config.js → window.MEET.link)
-      var meetLink = (window.MEET && window.MEET.link) ? String(window.MEET.link).trim() : "";
+      // Görüşme linki: önce randevuya özel (URL'den gelen gerçek Meet linki),
+      // yoksa config.js'teki sabit oda linki.
+      var meetLink = (q.get("meet") || (window.MEET && window.MEET.link) || "").toString().trim();
       if (meetLink) {
         var mb = document.getElementById("rv-meet");
         mb.href = meetLink; mb.style.display = "inline-flex";

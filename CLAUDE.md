@@ -58,8 +58,12 @@ Statik site (HTML/CSS/JS) + **Supabase** (veritabanı & giriş). GitHub Pages'te
 - **WhatsApp:** CallMeBot (`callmebotApikey` placeholder — pasif). `ownerPhone: +905326534005`.
 - Kanal yapılandırılmadıysa sessizce atlanır.
 
-## Bekleyen iş
-- **Gerçek Zoom otomasyonu (Parça 2):** Her randevuda otomatik gerçek Zoom linki → sahibe + müşteriye. Gerekenler: Zoom **Server-to-Server OAuth** app (Account ID, Client ID, Client Secret, scope `meeting:write:admin`) + bir **Supabase Edge Function** (Zoom secret'ları orada; gizli olduğu için tarayıcıda olamaz). Site fonksiyonu çağırıp `join_url` alır. Alternatif: **Jitsi** (kurulumsuz, anında, client-side).
+## Gerçek Google Meet linki (kodlandı — kurulum bekliyor)
+- **Edge Function:** `supabase/functions/create-meet/index.ts` — Google Calendar API ile her randevuya gerçek Meet linki üretir; `attendees=[sahip,müşteri]` + `sendUpdates=all` → Google daveti ikisine de yollar, takvime ekler.
+- **Site bağlantısı:** `public.js > createMeet()` onayda function'ı çağırır; link `notifyOwner` mailine, `randevu.html`'e (`?meet=`) ve lead'e (`randevu.meetLink`) gider.
+- **Açma:** `config.js > window.MEET.useGoogleApi=true`. Şu an **false** (kapalı) → site sabit `MEET.link` veya "Takvime Ekle" ile çalışır.
+- **Kurulum adımları:** `supabase/functions/create-meet/SETUP.md` (Google OAuth refresh token + Supabase secrets + `functions deploy create-meet --no-verify-jwt`).
+- Secret'lar (function env): `GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN`, `OWNER_EMAIL`. **Tarayıcıda DEĞİL.**
 
 ## Yerel önizleme/test
 - Bu makinede `python`/`node` yok. Preview için `.claude/serve.ps1` (PowerShell `HttpListener`) port 8765'te servis eder; `launch.json` `static` adıyla tanımlı.

@@ -123,17 +123,40 @@
       randevu: { tarih: a.tarih, saat: a.saat, platform: a.platform }
     };
     var saved = S.saveLead(lead);
-    // S.flush(): kaydın Supabase'e yazılmasını garanti et (yönlendirme iptal etmesin)
-    Promise.race([
-      Promise.all([S.flush(), notifyOwner(saved, a), S.fakeAsync(700)]),
-      S.fakeAsync(6000)
-    ]).then(function () {
-      var params = new URLSearchParams({
-        ad: saved.ad || "", tarih: a.tarih, saat: a.saat,
-        platform: a.platform, urun: saved.urun || ""
+    // Önce gerçek Meet linkini üret (varsa), sonra bildir + yönlendir.
+    Promise.race([createMeet(saved, a), S.fakeAsync(8000).then(function () { return ""; })])
+      .then(function (meetLink) {
+        if (meetLink) { saved.randevu.meetLink = meetLink; S.saveLead(saved); }
+        // S.flush(): kaydın Supabase'e yazılmasını garanti et (yönlendirme iptal etmesin)
+        return Promise.race([
+          Promise.all([S.flush(), notifyOwner(saved, a, meetLink), S.fakeAsync(500)]),
+          S.fakeAsync(6000)
+        ]).then(function () {
+          var params = new URLSearchParams({
+            ad: saved.ad || "", tarih: a.tarih, saat: a.saat,
+            platform: a.platform, urun: saved.urun || ""
+          });
+          if (meetLink) params.set("meet", meetLink);
+          window.location.href = "randevu.html?" + params.toString();
+        });
       });
-      window.location.href = "randevu.html?" + params.toString();
-    });
+  }
+
+  /* ---------- gerçek Google Meet linki (Supabase Edge Function) ---------- */
+  function createMeet(lead, appt) {
+    var M = window.MEET || {}, SUPA = window.SUPA || {};
+    if (!M.useGoogleApi || !SUPA.url || !SUPA.key) return Promise.resolve("");
+    var url = SUPA.url.replace(/\/+$/, "") + "/functions/v1/" + (M.functionName || "create-meet");
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPA.key, "apikey": SUPA.key },
+      body: JSON.stringify({
+        ad: lead.ad, email: lead.email, tarih: appt.tarih, saat: appt.saat,
+        urun: lead.urun, sektor: lead.sektor, miktarKg: lead.miktarKg
+      })
+    }).then(function (r) { return r.json(); })
+      .then(function (d) { return (d && d.meetLink) ? d.meetLink : ""; })
+      .catch(function (e) { console.warn("create-meet hatası:", e); return ""; });
   }
 
   /* ---------- Google Takvim linki ---------- */
@@ -152,9 +175,9 @@
   }
 
   /* ---------- sahibe bildirim (e-posta: FormSubmit) ---------- */
-  function notifyOwner(lead, appt) {
+  function notifyOwner(lead, appt, meetLink) {
     lead = lead || {}; var N = window.NOTIFY || {};
-    var meet = (window.MEET && window.MEET.link) ? String(window.MEET.link).trim() : "";
+    var meet = (meetLink || (window.MEET && window.MEET.link) || "").toString().trim();
     var msg = [
       "🔔 Yeni Görüşme Talebi — İthalatPro",
       "Müşteri: " + (lead.ad || "-"),
