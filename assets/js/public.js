@@ -10,16 +10,16 @@
 
   /* ---------- durum ---------- */
   var form = {
-    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "", gecmis: "" },
+    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "", butce: "", gecmis: "", zaman: "" },
     appt: { tarih: null, saat: null, platform: "Google Meet" }
   };
 
-  // basla.html ön sorularından gelen cevapları forma taşı (çift soru olmasın)
+  // basla.html ön sorularından gelen cevapları forma taşı (bütçe/geçmiş/zaman)
   function prefillFromUrl() {
     var q = new URLSearchParams(location.search);
-    if (q.get("sektor")) form.data.sektor = q.get("sektor");
-    if (q.get("konteyner")) form.data.konteyner = q.get("konteyner");
+    if (q.get("butce")) form.data.butce = q.get("butce");
     if (q.get("gecmis")) form.data.gecmis = q.get("gecmis");
+    if (q.get("zaman")) form.data.zaman = q.get("zaman");
   }
 
   function body() { return document.getElementById("form-body"); }
@@ -134,7 +134,8 @@
 
     var lead = {
       ad: d.ad, telefon: d.telefon, email: d.email,
-      urun: d.urun, sektor: d.sektor, konteyner: d.konteyner, ithalatGecmisi: d.gecmis,
+      urun: d.urun, sektor: d.sektor, konteyner: d.konteyner,
+      butce: d.butce, ithalatGecmisi: d.gecmis, zamanPlani: d.zaman,
       durum: "randevu", kaliteSkoru: 100,
       randevu: { tarih: a.tarih, saat: a.saat, platform: a.platform }
     };
@@ -152,7 +153,8 @@
             ad: saved.ad || "", tarih: a.tarih, saat: a.saat,
             platform: a.platform, urun: saved.urun || "",
             sektor: saved.sektor || "", konteyner: saved.konteyner || "",
-            telefon: saved.telefon || ""
+            telefon: saved.telefon || "", butce: saved.butce || "",
+            gecmis: saved.ithalatGecmisi || "", zaman: saved.zamanPlani || ""
           });
           if (meetLink) params.set("meet", meetLink);
           window.location.href = "randevu.html?" + params.toString();
@@ -204,7 +206,9 @@
       "Ürün: " + (lead.urun || "-"),
       "Sektör: " + (lead.sektor || "-"),
       "Konteyner: " + (lead.konteyner || "-"),
+      "Bütçe: " + (lead.butce || "-"),
       "İthalat geçmişi: " + (lead.ithalatGecmisi || "-"),
+      "Ne zaman: " + (lead.zamanPlani || "-"),
       "Tarih/Saat: " + appt.tarih + " " + appt.saat,
       "Platform: " + appt.platform,
       (meet ? "Google Meet linki: " + meet : "Toplantı oluştur: " + gcalLink(appt.tarih, appt.saat, appt.platform))
@@ -219,7 +223,7 @@
           _template: "table",
           Musteri: lead.ad || "-", Telefon: lead.telefon || "-", Eposta: lead.email || "-",
           Urun: lead.urun || "-", Sektor: lead.sektor || "-", Konteyner: lead.konteyner || "-",
-          IthalatGecmisi: lead.ithalatGecmisi || "-",
+          Butce: lead.butce || "-", IthalatGecmisi: lead.ithalatGecmisi || "-", NeZaman: lead.zamanPlani || "-",
           Randevu: appt.tarih + " " + appt.saat, Platform: appt.platform,
           GoogleMeet: meet || "-",
           ToplantiOlustur: gcalLink(appt.tarih, appt.saat, appt.platform)
@@ -243,7 +247,7 @@
     S.load().catch(function (e) { console.warn("Store.load:", e); });
     // Ön sorulardan geldiyse doğrudan forma kaydır
     var q = new URLSearchParams(location.search);
-    if (q.get("sektor") || q.get("konteyner") || q.get("gecmis")) {
+    if (q.get("butce") || q.get("gecmis") || q.get("zaman")) {
       var sec = document.getElementById("basvuru");
       if (sec) window.scrollTo({ top: sec.offsetTop - 70, behavior: "smooth" });
     }

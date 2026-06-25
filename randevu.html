@@ -67,6 +67,9 @@
       var sektor = q.get("sektor") || "";
       var konteyner = q.get("konteyner") || "";
       var telefon = q.get("telefon") || "";
+      var butce = q.get("butce") || "";
+      var gecmis = q.get("gecmis") || "";
+      var zaman = q.get("zaman") || "";
 
       function fmtTarih(iso) {
         if (!iso) return "—";
@@ -104,6 +107,9 @@
         + (urun ? "Ürün: " + urun + "\n" : "")
         + (sektor ? "Sektör: " + sektor + "\n" : "")
         + (konteyner ? "Konteyner: " + konteyner + "\n" : "")
+        + (butce ? "Bütçe: " + butce + "\n" : "")
+        + (gecmis ? "İthalat geçmişi: " + gecmis + "\n" : "")
+        + (zaman ? "Ne zaman: " + zaman + "\n" : "")
         + ((tarih && saat) ? "Randevu: " + fmtTarih(tarih) + " " + saat + "\n" : "")
         + (platform ? "Görüşme: " + platform + " üzerinden\n" : "");
       document.getElementById("rv-wa").href =
