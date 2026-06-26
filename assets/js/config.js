@@ -32,7 +32,7 @@ window.SUPA = {
 window.NOTIFY = {
   ownerEmail: "adnanparlas35@hotmail.com",
   ownerPhone: "+905326534005",
-  callmebotApikey: "CALLMEBOT_APIKEY"
+  callmebotApikey: "8969213"
 };
 
 /* ============================================================
