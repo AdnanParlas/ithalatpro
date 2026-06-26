@@ -32,13 +32,20 @@
       '<rect x="' + (bodyW + 2) + '" y="9" width="5" height="30" rx="1" fill="#5c2819"/>' +
       '</svg>';
   }
-  // "Full konteyner değil" (parsiyel) ikonu — küçük koli
+  // "Full konteyner değil" (parsiyel) ikonu — palet üstünde koliler
   function parcelSVG() {
-    return '<svg viewBox="0 0 48 48" width="30" height="30" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect x="10" y="16" width="28" height="22" rx="2" fill="#c9a24a" stroke="#8a6b25" stroke-width="2"/>' +
-      '<path d="M10 24 H38" stroke="#8a6b25" stroke-width="2"/>' +
-      '<path d="M24 16 V38" stroke="#8a6b25" stroke-width="2"/>' +
-      '<path d="M16 10 L24 16 L32 10" fill="none" stroke="#8a6b25" stroke-width="2" stroke-linejoin="round"/>' +
+    return '<svg viewBox="0 0 48 48" width="34" height="30" xmlns="http://www.w3.org/2000/svg">' +
+      // alttaki iki koli
+      '<rect x="6" y="20" width="16" height="13" rx="1.5" fill="#c9a24a" stroke="#8a6b25" stroke-width="2"/>' +
+      '<rect x="24" y="20" width="16" height="13" rx="1.5" fill="#c9a24a" stroke="#8a6b25" stroke-width="2"/>' +
+      // üstteki koli (ortalı)
+      '<rect x="15" y="8" width="16" height="13" rx="1.5" fill="#d8b35c" stroke="#8a6b25" stroke-width="2"/>' +
+      '<path d="M23 8 V21" stroke="#8a6b25" stroke-width="1.6"/>' +
+      // palet
+      '<rect x="3" y="34" width="42" height="4" fill="#7a5b2a"/>' +
+      '<rect x="5" y="38" width="5" height="5" fill="#6b4f24"/>' +
+      '<rect x="21" y="38" width="5" height="5" fill="#6b4f24"/>' +
+      '<rect x="38" y="38" width="5" height="5" fill="#6b4f24"/>' +
       '</svg>';
   }
   var KONTEYNERLER = [
