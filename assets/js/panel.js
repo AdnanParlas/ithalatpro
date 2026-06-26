@@ -38,6 +38,35 @@
   function badge(durum) { var d = DURUM[durum] || DURUM.yeni; return '<span class="badge badge--' + d.c + '">' + d.t + "</span>"; }
   function root() { return el("view-root"); }
 
+  /* ---------- WhatsApp: müşteriye direkt sohbet (bilgiler ön-dolu) ---------- */
+  function waPhone(tel) {
+    var d = String(tel || "").replace(/[^0-9]/g, "");
+    if (!d) return "";
+    if (d.indexOf("90") === 0) return d;      // 90532... → olduğu gibi
+    if (d.indexOf("0") === 0) return "9" + d; // 0532...  → 90532...
+    if (d.length === 10) return "90" + d;     // 532...   → 90532...
+    return d;
+  }
+  function waText(lead) {
+    var r = (lead && lead.randevu) || {};
+    var lines = ["Merhaba " + (lead.ad || "") + ", İthalatPro'dan ulaşıyoruz."];
+    if (lead.urun) lines.push("Ürün: " + lead.urun);
+    if (lead.sektor) lines.push("Sektör: " + lead.sektor);
+    if (lead.konteyner) lines.push("Konteyner: " + lead.konteyner);
+    if (r.tarih && r.saat) lines.push("Görüşme: " + r.tarih + " " + r.saat + " (" + (r.platform || "Google Meet") + ")");
+    if (r.meetLink) lines.push("Görüşme linki: " + r.meetLink);
+    return lines.join("\n");
+  }
+  function waCustomerUrl(lead) {
+    if (!lead) return "";
+    var p = waPhone(lead.telefon);
+    if (!p) return "";
+    return "https://wa.me/" + p + "?text=" + encodeURIComponent(waText(lead));
+  }
+  function meetLinkOf(lead) {
+    return (lead && lead.randevu && lead.randevu.meetLink) ? String(lead.randevu.meetLink).trim() : "";
+  }
+
   /* =========================================================
      ROUTER
      ========================================================= */
@@ -115,7 +144,10 @@
         return "<tr><td><strong>" + S.esc(l.ad) + "</strong><br><span class='mute2' style='font-size:.78rem'>" + S.esc(l.telefon) + "</span></td>" +
           "<td>" + S.esc(l.urun) + "</td><td>" + S.esc(l.sektor) + "</td><td class='mono'>" + S.esc(l.butce) + "</td>" +
           "<td><span class='mono'>" + (l.kaliteSkoru || 0) + "</span></td><td>" + badge(l.durum) + "</td>" +
-          "<td><button class='btn btn--sm' data-lead='" + l.id + "'>Aç →</button></td></tr>";
+          "<td><div class='row' style='gap:6px; flex-wrap:nowrap'>" +
+            (waCustomerUrl(l) ? "<a class='btn btn--sm' href='" + waCustomerUrl(l) + "' target='_blank' rel='noopener' title='WhatsApp ile yaz' style='background:#25D366; border-color:#25D366; color:#06281a'>💬</a>" : "") +
+            "<button class='btn btn--sm' data-lead='" + l.id + "'>Aç →</button>" +
+          "</div></td></tr>";
       }).join("") || "<tr><td colspan='7' class='center mute2' style='padding:30px'>Kayıt bulunamadı.</td></tr>";
       el("lead-rows").querySelectorAll("[data-lead]").forEach(function (b) {
         b.addEventListener("click", function () { state.selectedLead = b.getAttribute("data-lead"); go("customer"); });
@@ -146,6 +178,11 @@
     var randevuHtml = lead.randevu
       ? '<span class="badge badge--blue">' + S.esc(lead.randevu.platform) + " · " + S.esc(lead.randevu.tarih) + " " + S.esc(lead.randevu.saat) + '</span>'
       : '<span class="mute2">Randevu yok</span>';
+    var meetLink = meetLinkOf(lead);
+    var meetHtml = meetLink
+      ? '<a href="' + S.esc(meetLink) + '" target="_blank" rel="noopener" style="color:var(--green); font-weight:600">🎥 Meet linkini aç</a>'
+      : '<span class="mute2">—</span>';
+    var waUrl = waCustomerUrl(lead);
 
     root().innerHTML =
       '<div class="view"><div class="row" style="align-items:stretch">' +
@@ -160,7 +197,11 @@
           '<div class="k">⚡ Aciliyet</div><div>' + S.esc(lead.aciliyet || "-") + '</div>' +
           '<div class="k">⭐ Kalite Skoru</div><div class="mono">' + (lead.kaliteSkoru || 0) + '/100</div>' +
           '<div class="k">📅 Görüşme</div><div>' + randevuHtml + '</div>' +
+          '<div class="k">🎥 Meet linki</div><div>' + meetHtml + '</div>' +
         '</div>' +
+        (waUrl
+          ? '<a class="btn btn--block" href="' + waUrl + '" target="_blank" rel="noopener" style="margin-top:12px; background:#25D366; border-color:#25D366; color:#06281a">💬 Müşteriye WhatsApp\'tan yaz</a>'
+          : '') +
         (job
           ? '<div class="badge badge--green" style="margin-top:8px">✓ İş başlatıldı (' + (job.adet || 0) + ' adet)</div>' +
             '<button class="btn btn--block" id="go-rfq" style="margin-top:14px">RFQ adımına git →</button>'
