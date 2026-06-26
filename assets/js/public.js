@@ -10,19 +10,42 @@
 
   /* ---------- durum ---------- */
   var form = {
-    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "", butce: "", gecmis: "", zaman: "" },
+    data: { ad: "", email: "", telefon: "", urun: "", sektor: "", konteyner: "" },
     appt: { tarih: null, saat: null, platform: "Google Meet" }
   };
 
-  // basla.html ön sorularından gelen cevapları forma taşı (bütçe/geçmiş/zaman)
-  function prefillFromUrl() {
-    var q = new URLSearchParams(location.search);
-    if (q.get("butce")) form.data.butce = q.get("butce");
-    if (q.get("gecmis")) form.data.gecmis = q.get("gecmis");
-    if (q.get("zaman")) form.data.zaman = q.get("zaman");
-  }
-
   function body() { return document.getElementById("form-body"); }
+
+  /* ---------- konteyner görseli (gerçek konteyner SVG) ---------- */
+  function containerSVG(bodyW) {
+    var lines = "";
+    for (var x = 12; x < bodyW - 4; x += 7) {
+      lines += '<line x1="' + x + '" y1="13" x2="' + x + '" y2="35"/>';
+    }
+    var iconW = bodyW > 70 ? 64 : 46;
+    return '<svg viewBox="0 0 ' + (bodyW + 10) + ' 48" width="' + iconW + '" height="30" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="5" y="10" width="' + bodyW + '" height="28" rx="2" fill="#c45a3a" stroke="#6f3120" stroke-width="2"/>' +
+      '<g stroke="#9a4127" stroke-width="1.6">' + lines + '</g>' +
+      '<rect x="5" y="10" width="' + bodyW + '" height="4" fill="#6f3120"/>' +
+      '<rect x="5" y="34" width="' + bodyW + '" height="4" fill="#6f3120"/>' +
+      '<rect x="3" y="9" width="5" height="30" rx="1" fill="#5c2819"/>' +
+      '<rect x="' + (bodyW + 2) + '" y="9" width="5" height="30" rx="1" fill="#5c2819"/>' +
+      '</svg>';
+  }
+  // "Full konteyner değil" (parsiyel) ikonu — küçük koli
+  function parcelSVG() {
+    return '<svg viewBox="0 0 48 48" width="30" height="30" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="10" y="16" width="28" height="22" rx="2" fill="#c9a24a" stroke="#8a6b25" stroke-width="2"/>' +
+      '<path d="M10 24 H38" stroke="#8a6b25" stroke-width="2"/>' +
+      '<path d="M24 16 V38" stroke="#8a6b25" stroke-width="2"/>' +
+      '<path d="M16 10 L24 16 L32 10" fill="none" stroke="#8a6b25" stroke-width="2" stroke-linejoin="round"/>' +
+      '</svg>';
+  }
+  var KONTEYNERLER = [
+    { k: "Full konteyner değil", ico: parcelSVG() },
+    { k: "20'lik", ico: containerSVG(54) },
+    { k: "40'lık", ico: containerSVG(78) }
+  ];
 
   /* ---------- formu çiz ---------- */
   function render() {
@@ -38,10 +61,12 @@
         '<span class="badge badge--green" style="margin-top:18px; display:inline-block">Ürün Bilgileri</span>' +
         '<label class="field" style="margin-top:14px"><span>Düşündüğünüz ürün *</span><input id="f-urun" value="' + esc(form.data.urun) + '" placeholder="Örn: Plastik saklama kutusu, LED aydınlatma…" /></label>' +
         '<label class="field"><span>Sektör *</span><input id="f-sektor" value="' + esc(form.data.sektor) + '" placeholder="Örn: Ev & Yaşam, Elektronik…" /></label>' +
-        '<span class="muted" style="font-size:.85rem; font-weight:600">Konteyner *</span>' +
+        '<span class="muted" style="font-size:.85rem; font-weight:600">Konteyner</span>' +
         '<div class="platforms" id="kont-wrap" style="margin-top:8px">' +
-          '<div class="platform' + (form.data.konteyner === "20\'lik" ? " is-active" : "") + '" data-k="20\'lik"><span class="ico">📦</span><div><b>20\'lik konteyner</b></div></div>' +
-          '<div class="platform' + (form.data.konteyner === "40\'lık" ? " is-active" : "") + '" data-k="40\'lık"><span class="ico">🗃️</span><div><b>40\'lık konteyner</b></div></div>' +
+          KONTEYNERLER.map(function (it) {
+            return '<div class="platform' + (form.data.konteyner === it.k ? " is-active" : "") + '" data-k="' + esc(it.k) + '">' +
+              '<span class="ico">' + it.ico + '</span><div><b>' + esc(it.k) + '</b></div></div>';
+          }).join("") +
         '</div>' +
 
         '<span class="badge badge--green" style="margin-top:18px; display:inline-block">📅 Google Meet Görüşmesi</span>' +
@@ -125,7 +150,7 @@
     if (!d.ad || !d.telefon || !d.email || !d.urun || !d.sektor) {
       S.toast("Eksik bilgi", "Lütfen tüm alanları doldurun.", "red"); return;
     }
-    if (!d.konteyner) { S.toast("Konteyner seçin", "Lütfen 20'lik veya 40'lık seçin.", "red"); return; }
+    if (!d.konteyner) { S.toast("Konteyner seçin", "Lütfen bir konteyner seçeneği seçin.", "red"); return; }
     if (d.email.indexOf("@") < 0) { S.toast("E-posta hatalı", "Geçerli bir e-posta girin.", "red"); return; }
     if (!a.tarih || !a.saat) { S.toast("Randevu seçin", "Lütfen bir gün ve saat seçin.", "red"); return; }
 
@@ -135,7 +160,6 @@
     var lead = {
       ad: d.ad, telefon: d.telefon, email: d.email,
       urun: d.urun, sektor: d.sektor, konteyner: d.konteyner,
-      butce: d.butce, ithalatGecmisi: d.gecmis, zamanPlani: d.zaman,
       durum: "randevu", kaliteSkoru: 100,
       randevu: { tarih: a.tarih, saat: a.saat, platform: a.platform }
     };
@@ -153,8 +177,7 @@
             ad: saved.ad || "", tarih: a.tarih, saat: a.saat,
             platform: a.platform, urun: saved.urun || "",
             sektor: saved.sektor || "", konteyner: saved.konteyner || "",
-            telefon: saved.telefon || "", butce: saved.butce || "",
-            gecmis: saved.ithalatGecmisi || "", zaman: saved.zamanPlani || ""
+            telefon: saved.telefon || ""
           });
           if (meetLink) params.set("meet", meetLink);
           window.location.href = "randevu.html?" + params.toString();
@@ -206,9 +229,6 @@
       "Ürün: " + (lead.urun || "-"),
       "Sektör: " + (lead.sektor || "-"),
       "Konteyner: " + (lead.konteyner || "-"),
-      "Bütçe: " + (lead.butce || "-"),
-      "İthalat geçmişi: " + (lead.ithalatGecmisi || "-"),
-      "Ne zaman: " + (lead.zamanPlani || "-"),
       "Tarih/Saat: " + appt.tarih + " " + appt.saat,
       "Platform: " + appt.platform,
       (meet ? "Google Meet linki: " + meet : "Toplantı oluştur: " + gcalLink(appt.tarih, appt.saat, appt.platform))
@@ -223,7 +243,6 @@
           _template: "table",
           Musteri: lead.ad || "-", Telefon: lead.telefon || "-", Eposta: lead.email || "-",
           Urun: lead.urun || "-", Sektor: lead.sektor || "-", Konteyner: lead.konteyner || "-",
-          Butce: lead.butce || "-", IthalatGecmisi: lead.ithalatGecmisi || "-", NeZaman: lead.zamanPlani || "-",
           Randevu: appt.tarih + " " + appt.saat, Platform: appt.platform,
           GoogleMeet: meet || "-",
           ToplantiOlustur: gcalLink(appt.tarih, appt.saat, appt.platform)
@@ -242,14 +261,7 @@
 
   /* ---------- init ---------- */
   document.addEventListener("DOMContentLoaded", function () {
-    prefillFromUrl();
     render();
     S.load().catch(function (e) { console.warn("Store.load:", e); });
-    // Ön sorulardan geldiyse doğrudan forma kaydır
-    var q = new URLSearchParams(location.search);
-    if (q.get("butce") || q.get("gecmis") || q.get("zaman")) {
-      var sec = document.getElementById("basvuru");
-      if (sec) window.scrollTo({ top: sec.offsetTop - 70, behavior: "smooth" });
-    }
   });
 })();

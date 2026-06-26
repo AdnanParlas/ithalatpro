@@ -217,6 +217,11 @@ table.tbl tr:last-child td { border-bottom: none; }
 .platform:hover { border-color: var(--green); }
 .platform.is-active { border-color: var(--green); background: var(--green-soft); }
 .platform .ico { font-size: 1.5rem; }
+/* Konteyner seçimi: 3 kart, görsel üstte ortalı */
+#kont-wrap { grid-template-columns: repeat(3, 1fr); }
+#kont-wrap .platform { flex-direction: column; text-align: center; gap: 8px; padding: 14px 8px; }
+#kont-wrap .platform .ico { display: flex; align-items: center; justify-content: center; height: 32px; }
+#kont-wrap .platform b { font-size: .9rem; }
 
 /* ===== Funnel / Wizard ===== */
 .wizard { max-width: 660px; margin-inline: auto; }
@@ -389,6 +394,7 @@ table.tbl tr:last-child td { border-bottom: none; }
 @media (max-width: 560px) {
   .steps, .benefits, .stat-grid, .platforms, .form-cols, .slots { grid-template-columns: 1fr; }
   .slots { grid-template-columns: repeat(2,1fr); }
+  #kont-wrap { grid-template-columns: 1fr; }
   .nav-links a:not(.btn) { display: none; }
 }
 
