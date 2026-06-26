@@ -249,11 +249,28 @@ table.tbl tr:last-child td { border-bottom: none; }
 .wiz-back { background: transparent; border-color: var(--border); color: var(--text-dim); }
 .wiz-back:hover { background: var(--panel-2); }
 
-.benefits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.benefit { text-align: center; padding: 22px; }
-.benefit .ico { font-size: 2rem; margin-bottom: 8px; }
+.benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.benefit { text-align: center; padding: 26px 22px; }
+.benefit .ico { font-size: 2rem; margin-bottom: 12px; color: var(--green); display: flex; justify-content: center; }
+.benefit .ico svg { width: 40px; height: 40px; }
 .benefit h4 { font-size: 1rem; }
 .benefit p { font-size: .85rem; color: var(--text-dim); margin-top: 4px; }
+
+/* hero "Aşağı Kaydır" ipucu */
+.scroll-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; color: var(--text-mute); font-size: .85rem; font-weight: 600; }
+.scroll-hint:hover { color: var(--green); }
+.scroll-hint span { display: inline-block; animation: bob 1.4s ease-in-out infinite; font-size: 1rem; }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+/* "Nasıl Çalışır?" dikey zaman çizelgesi */
+.howto { position: relative; margin-top: 26px; }
+.howto::before { content: ""; position: absolute; left: 21px; top: 34px; bottom: 34px; width: 2px; background: var(--border); }
+.howto-row { display: grid; grid-template-columns: 44px 52px 1fr; gap: 16px; align-items: center; padding: 14px 0; position: relative; }
+.howto-num { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--green), var(--green-d)); color: #1c1006; font-weight: 900; font-size: 1.1rem; display: grid; place-items: center; z-index: 1; box-shadow: 0 6px 16px rgba(249,115,22,.3); }
+.howto-ico { width: 52px; height: 52px; border-radius: 13px; background: var(--panel); border: 1px solid var(--border); display: grid; place-items: center; color: var(--green); }
+.howto-ico svg { width: 26px; height: 26px; }
+.howto-txt h4 { font-size: 1.02rem; }
+.howto-txt p { color: var(--text-dim); font-size: .9rem; margin-top: 3px; }
 
 .phase-result { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--border); flex-wrap: wrap; }
 .phase-result strong { font-size: 1.02rem; }
