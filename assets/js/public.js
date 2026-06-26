@@ -270,9 +270,28 @@
     return Promise.all(jobs);
   }
 
+  /* ---------- #basvuru linkleri: header'ı hesaba katan güvenli kaydırma ----------
+     (iOS Safari hash + scroll-margin'i smooth scroll'da bazen yok sayıyor;
+      JS ile sabit header yüksekliği + küçük pay bırakıp net konuma indiriyoruz.) */
+  function wireSmoothAnchors() {
+    document.querySelectorAll('a[href="#basvuru"]').forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        var sec = document.getElementById("basvuru");
+        if (!sec) return;
+        e.preventDefault();
+        var nav = document.querySelector(".nav");
+        var navH = nav ? nav.getBoundingClientRect().height : 64;
+        var y = sec.getBoundingClientRect().top + window.pageYOffset - navH - 14;
+        window.scrollTo({ top: y, behavior: "smooth" });
+        if (history.replaceState) history.replaceState(null, "", "#basvuru");
+      });
+    });
+  }
+
   /* ---------- init ---------- */
   document.addEventListener("DOMContentLoaded", function () {
     render();
+    wireSmoothAnchors();
     S.load().catch(function (e) { console.warn("Store.load:", e); });
   });
 })();
