@@ -43,11 +43,11 @@
           <a class="btn btn--lg btn--ghost" id="rv-cal" target="_blank" rel="noopener">📅 Takvime Ekle</a>
         </div>
         <div class="row" style="justify-content:center; margin-top:12px">
-          <a class="btn btn--lg btn--block" id="rv-wa" target="_blank" rel="noopener" style="background:#25D366; border-color:#25D366; color:#06281a">💬 WhatsApp'tan bize ulaşın</a>
+          <a class="btn btn--lg btn--block" id="rv-wa" rel="noopener" style="background:#25D366; border-color:#25D366; color:#06281a">💬 WhatsApp'ta sohbeti aç</a>
         </div>
 
         <p class="mute2" id="rv-note" style="font-size:.86rem; margin-top:20px">
-          Görüşme linki ve hatırlatma <strong>e-posta ve WhatsApp</strong> ile size iletilecektir. Görüşme saatinde yukarıdaki butondan / gönderilen linkten katılabilirsiniz.
+          Birkaç saniye içinde <strong>WhatsApp</strong>'a yönlendirileceksiniz; açılan sohbette bilgileriniz hazır olacak — sadece <strong>Gönder</strong>'e basmanız yeterli. Otomatik açılmazsa yukarıdaki yeşil butona dokunun.
         </p>
 
         <a class="btn btn--ghost btn--block" href="index.html" style="margin-top:18px">← Ana sayfaya dön</a>
@@ -106,8 +106,17 @@
         + (konteyner ? "Konteyner: " + konteyner + "\n" : "")
         + ((tarih && saat) ? "Randevu: " + fmtTarih(tarih) + " " + saat + "\n" : "")
         + (platform ? "Görüşme: " + platform + " üzerinden\n" : "");
-      document.getElementById("rv-wa").href =
-        "https://wa.me/" + waPhone + "?text=" + encodeURIComponent(waText);
+      var waUrl = "https://wa.me/" + waPhone + "?text=" + encodeURIComponent(waText);
+      document.getElementById("rv-wa").href = waUrl;
+
+      // Otomatik WhatsApp yönlendirmesi: müşteri randevu oluşturduktan sonra
+      // WhatsApp'a yönlenir, bilgileri ön-dolu gelir, sadece "Gönder"e basar.
+      // Her randevu için yalnızca bir kez (geri tuşunda döngü olmasın).
+      (function () {
+        var key = "wa_redir_" + tarih + "_" + saat;
+        try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch (e) {}
+        setTimeout(function () { window.location.href = waUrl; }, 1800);
+      })();
 
       // Google Takvim'e ekle (o saatte etkinlik; Meet linki Google tarafında oluşabilir)
       if (tarih && saat) {
