@@ -260,8 +260,12 @@
       var phone = String(N.ownerPhone).replace(/[^0-9]/g, "");
       var url = "https://api.callmebot.com/whatsapp.php?phone=" + phone +
         "&text=" + encodeURIComponent(msg) + "&apikey=" + encodeURIComponent(N.callmebotApikey);
-      try { (new Image()).src = url; } catch (e) {}
-      jobs.push(S.fakeAsync(600));
+      // keepalive: yönlendirme (randevu.html) olsa bile istek iptal olmaz → mesaj garanti gider.
+      jobs.push(
+        fetch(url, { mode: "no-cors", keepalive: true }).then(function () {}, function () {
+          try { (new Image()).src = url; } catch (e) {} // yedek
+        })
+      );
     }
     return Promise.all(jobs);
   }
