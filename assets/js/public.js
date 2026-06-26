@@ -81,7 +81,7 @@
         '<div id="cal-wrap" style="margin-top:14px"></div>' +
         '<div id="slot-wrap" style="margin-top:18px"></div>' +
 
-        '<button class="btn btn--lg btn--block" id="f-confirm" style="margin-top:22px" disabled>📅 Google Meet Randevusu Oluştur</button>' +
+        '<button class="btn btn--lg btn--block" id="f-confirm" style="margin-top:22px" disabled>📅 Randevu Oluştur</button>' +
       '</div>';
 
     renderCalendar(); renderSlots();
