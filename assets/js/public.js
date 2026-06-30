@@ -192,21 +192,26 @@
       });
   }
 
-  /* ---------- gerçek Google Meet linki (Supabase Edge Function) ---------- */
+  /* ---------- gerçek Google Meet linki (Google Apps Script web app) ----------
+     config.js → window.MEET.appsScriptUrl'e POST eder. Apps Script senin Google
+     hesabında bir takvim etkinliği + randevuya ÖZEL Meet linki oluşturur,
+     müşteriyi davetli ekleyip Google'ın davet/Meet linkli mailini gönderir ve
+     linki geri döner. text/plain gövde "basit istek"tir → CORS preflight olmaz
+     (Apps Script OPTIONS isteklerini yanıtlayamaz). */
   function createMeet(lead, appt) {
-    var M = window.MEET || {}, SUPA = window.SUPA || {};
-    if (!M.useGoogleApi || !SUPA.url || !SUPA.key) return Promise.resolve("");
-    var url = SUPA.url.replace(/\/+$/, "") + "/functions/v1/" + (M.functionName || "create-meet");
+    var M = window.MEET || {};
+    var url = (M.appsScriptUrl || "").trim();
+    if (!url || !/^https?:\/\//.test(url)) return Promise.resolve("");
     return fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPA.key, "apikey": SUPA.key },
       body: JSON.stringify({
-        ad: lead.ad, email: lead.email, tarih: appt.tarih, saat: appt.saat,
-        urun: lead.urun, sektor: lead.sektor, konteyner: lead.konteyner
+        ad: lead.ad, email: lead.email, telefon: lead.telefon,
+        urun: lead.urun, sektor: lead.sektor, konteyner: lead.konteyner,
+        startISO: appt.tarih + "T" + appt.saat + ":00+03:00"
       })
     }).then(function (r) { return r.json(); })
       .then(function (d) { return (d && d.meetLink) ? d.meetLink : ""; })
-      .catch(function (e) { console.warn("create-meet hatası:", e); return ""; });
+      .catch(function (e) { console.warn("create-meet (Apps Script) hatası:", e); return ""; });
   }
 
   /* ---------- Google Takvim linki ---------- */

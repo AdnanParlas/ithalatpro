@@ -36,20 +36,18 @@ window.NOTIFY = {
 };
 
 /* ============================================================
-   GÖRÜŞME LİNKİ — iki mod:
+   GÖRÜŞME LİNKİ — Google Meet otomasyonu (Google Apps Script):
 
-   1) OTOMATİK (GERÇEK Google Meet — her randevuya AYRI link):
-      useGoogleApi: true yap. Site, randevu onayında Supabase Edge
-      Function'ı (create-meet) çağırır; Google Calendar API gerçek bir
-      Meet linki üretir ve daveti HEM sana HEM müşteriye e-postayla yollar,
-      ikinizin de takvimine ekler. Kurulum: supabase/functions/create-meet/SETUP.md
+   • appsScriptUrl (AKTİF): Apps Script Web App'inin "/exec" URL'si.
+     Her randevuda senin Google hesabında bir takvim etkinliği +
+     randevuya ÖZEL Meet linki oluşur; müşteriye Google'dan otomatik
+     davet/Meet linkli mail gider, etkinlik senin takvimine düşer.
+     Kurulum: apps-script/KURULUM.md
 
-   2) SABİT ODA (yedek): link alanına kalıcı bir Meet/Zoom oda linki yaz.
-      useGoogleApi kapalıysa (false) bu link kullanılır. Boşsa sadece
-      "Takvime Ekle" çıkar.
+   • link (YEDEK): appsScriptUrl boşsa/erişilemezse kullanılacak sabit
+     oda linki. Boşsa sadece "Takvime Ekle" çıkar.
    ============================================================ */
 window.MEET = {
-  useGoogleApi: false,             // SETUP.md tamamlanınca true yap
-  functionName: "create-meet",     // Supabase Edge Function adı
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycby9-8mvjamawRY7WMP5NCwQ4tsO4NO7dlIvk6b3zgmugKuAGhogyghErm4EuJeZ1m-HnA/exec",
   link: ""                         // yedek sabit oda linki (örn. https://meet.google.com/abc-defg-hij)
 };
